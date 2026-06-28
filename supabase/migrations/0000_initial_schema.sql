@@ -3,7 +3,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- ROLES & PERMISSIONS
 CREATE TABLE public.roles (
-    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     name VARCHAR(50) UNIQUE NOT NULL,
     description TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
@@ -44,7 +44,7 @@ CREATE TABLE public.authors (
 
 -- CATEGORIES
 CREATE TABLE public.categories (
-    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     name_en VARCHAR(100) NOT NULL,
     name_bn VARCHAR(100) NOT NULL,
     slug VARCHAR(100) UNIQUE NOT NULL,
@@ -58,7 +58,7 @@ CREATE TABLE public.categories (
 
 -- TAGS
 CREATE TABLE public.tags (
-    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     name_en VARCHAR(100) NOT NULL,
     name_bn VARCHAR(100) NOT NULL,
     slug VARCHAR(100) UNIQUE NOT NULL,
@@ -69,7 +69,7 @@ CREATE TABLE public.tags (
 CREATE TYPE public.news_status AS ENUM ('draft', 'pending', 'published', 'scheduled');
 
 CREATE TABLE public.news (
-    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     title_en VARCHAR(255) NOT NULL,
     title_bn VARCHAR(255) NOT NULL,
     slug VARCHAR(255) UNIQUE NOT NULL,
@@ -109,7 +109,7 @@ CREATE TABLE public.news_tags (
 CREATE TYPE public.comment_status AS ENUM ('pending', 'approved', 'rejected', 'spam');
 
 CREATE TABLE public.comments (
-    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     news_id UUID REFERENCES public.news(id) ON DELETE CASCADE,
     user_id UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
     parent_id UUID REFERENCES public.comments(id) ON DELETE CASCADE,
@@ -121,7 +121,7 @@ CREATE TABLE public.comments (
 
 -- MEDIA (Library)
 CREATE TABLE public.media (
-    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     uploader_id UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
     file_name VARCHAR(255) NOT NULL,
     file_path TEXT NOT NULL,
@@ -136,7 +136,7 @@ CREATE TABLE public.media (
 CREATE TYPE public.ad_placement AS ENUM ('header', 'sidebar', 'homepage', 'category', 'article_top', 'article_middle', 'article_bottom', 'footer', 'popup', 'sticky');
 
 CREATE TABLE public.advertisements (
-    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     placement public.ad_placement NOT NULL,
     image_url TEXT,
@@ -161,7 +161,7 @@ CREATE TABLE public.settings (
 
 -- PAGES (Static pages like About, Privacy)
 CREATE TABLE public.pages (
-    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     title_en VARCHAR(255) NOT NULL,
     title_bn VARCHAR(255) NOT NULL,
     slug VARCHAR(255) UNIQUE NOT NULL,

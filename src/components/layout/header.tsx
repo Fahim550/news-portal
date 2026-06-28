@@ -8,8 +8,8 @@ import {
   FaRss,
   FaTwitter,
 } from "react-icons/fa"
+import Logo from "../../../public/images/logo.png"
 import { BreakingNewsTicker } from "./breaking-news-ticker"
-import { Logo } from "./logo"
 import { SideMenu } from "./side-menu"
 
 export function Header() {

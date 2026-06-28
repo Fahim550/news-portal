@@ -35,16 +35,20 @@ export function SideMenu({ variant = "desktop" }: SideMenuProps) {
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>
+      <SheetTrigger render={
+        variant === "desktop" ? (
+          <button className="flex items-center gap-1.5 h-full px-3 md:px-5 font-semibold hover:bg-white/10 transition-colors whitespace-nowrap text-white" />
+        ) : (
+          <button className="flex items-center justify-center p-2 text-gray-800 hover:text-gray-600 transition-colors" />
+        )
+      }>
         {variant === "desktop" ? (
-          <button className="flex items-center gap-1.5 h-full px-3 md:px-5 font-semibold hover:bg-white/10 transition-colors whitespace-nowrap text-white">
+          <>
             <Menu className="h-[18px] w-[18px]" />
             <span className="hidden sm:inline">সব</span>
-          </button>
+          </>
         ) : (
-          <button className="flex items-center justify-center p-2 text-gray-800 hover:text-gray-600 transition-colors">
-            <Menu className="h-8 w-8" strokeWidth={1.5} />
-          </button>
+          <Menu className="h-8 w-8" strokeWidth={1.5} />
         )}
       </SheetTrigger>
       

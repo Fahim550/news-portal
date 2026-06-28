@@ -20,11 +20,11 @@ export function MobileMenu() {
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="md:hidden">
-          <Menu className="h-5 w-5" />
-          <span className="sr-only">Toggle Menu</span>
-        </Button>
+      <SheetTrigger render={
+        <Button variant="ghost" size="icon" className="md:hidden" />
+      }>
+        <Menu className="h-5 w-5" />
+        <span className="sr-only">Toggle Menu</span>
       </SheetTrigger>
       <SheetContent side="left" className="w-[300px] sm:w-[350px] pr-0">
         <SheetHeader className="pr-6">

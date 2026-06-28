@@ -43,8 +43,8 @@ export function DynamicBreadcrumb() {
                 {isLast ? (
                   <BreadcrumbPage>{title}</BreadcrumbPage>
                 ) : (
-                  <BreadcrumbLink asChild>
-                    <Link href={href}>{title}</Link>
+                  <BreadcrumbLink render={<Link href={href} />}>
+                    {title}
                   </BreadcrumbLink>
                 )}
               </BreadcrumbItem>

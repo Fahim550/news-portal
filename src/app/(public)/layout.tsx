@@ -10,7 +10,7 @@ export default function PublicLayout({
   return (
     <div className="flex min-h-screen flex-col">
       <div>
-        hello
+        hello suhan
       </div>
       <BreakingNewsTicker />
       <Header />

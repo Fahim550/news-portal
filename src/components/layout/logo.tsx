@@ -1,25 +1,23 @@
 import Link from "next/link";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 interface LogoProps {
   className?: string;
   isDark?: boolean;
+  src?: string;
 }
 
-export function Logo({ className, isDark }: LogoProps) {
+export function Logo({ className, isDark, src = "/logos.png" }: LogoProps) {
   return (
-    <Link href="/" className={cn("flex items-center gap-2 group", className)}>
-      <div className="bg-primary text-primary-foreground font-black text-2xl px-3 py-1 rounded-sm tracking-tighter">
-        NP
-      </div>
-      <div className="flex flex-col">
-        <span className="font-black text-xl leading-none tracking-tight uppercase">
-          News Portal
-        </span>
-        <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold mt-0.5">
-          Enterprise CMS
-        </span>
-      </div>
+    <Link href="/" className={cn("flex items-center justify-center relative w-36 h-24", className)}>
+      <Image
+        src={src}
+        alt="পুঁজি বার্তা"
+        fill
+        className="object-contain"
+        priority
+      />
     </Link>
   );
 }

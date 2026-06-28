@@ -7,5 +7,5 @@ export default function AdminDashboard() {
       </p>
       {/* Dashboard Widgets will go here in Sprint 2 */}
     </div>
-  );
+  )
 }

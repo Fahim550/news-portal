@@ -1,4 +1,5 @@
 import { Calendar, Home, MapPin, Search } from "lucide-react"
+import Image from "next/image"
 import Link from "next/link"
 import {
   FaFacebookF,
@@ -31,7 +32,15 @@ export function Header() {
         <div className="container mx-auto flex flex-col items-center justify-between gap-4 px-4 py-2 md:flex-row md:py-3">
           {/* Left: Logo */}
           <div className="flex-shrink-0">
-            <Logo />
+            {/* <Logo /> */}
+            <Image
+              src={Logo}
+              alt="Logo"
+              width={220}
+              height={60}
+              className="h-12 w-auto md:h-[55px]"
+              priority
+            />
           </div>
 
           {/* Center: Date & Time */}
@@ -93,8 +102,15 @@ export function Header() {
           <div className="flex h-[60px] items-center justify-between text-[14px] md:h-[48px] md:text-[15px]">
             {/* Mobile Left: Logo */}
             <div className="flex h-full items-center py-2 pl-3 md:hidden">
-              <div className="flex h-full items-center justify-center rounded-md bg-white px-3 shadow-sm">
-                <Logo src="/logo1.png" className="h-[38px] w-[140px]" />
+              <div className="flex h-full items-center justify-center rounded-md bg-white px-3 py-1 shadow-sm">
+                <Image
+                  src={Logo}
+                  alt="Logo"
+                  width={140}
+                  height={36}
+                  className="h-7 w-auto object-contain"
+                  priority
+                />
               </div>
             </div>
 

@@ -17,11 +17,11 @@ export function SearchModal() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" className="rounded-full w-9 h-9 text-muted-foreground hover:text-foreground">
-          <Search className="h-[1.2rem] w-[1.2rem]" />
-          <span className="sr-only">Search</span>
-        </Button>
+      <DialogTrigger render={
+        <Button variant="ghost" size="icon" className="rounded-full w-9 h-9 text-muted-foreground hover:text-foreground" />
+      }>
+        <Search className="h-[1.2rem] w-[1.2rem]" />
+        <span className="sr-only">Search</span>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px] top-[20%] translate-y-[-20%]">
         <DialogHeader>

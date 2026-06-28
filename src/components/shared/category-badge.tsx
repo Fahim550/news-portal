@@ -23,15 +23,17 @@ export function CategoryBadge({
     outline: "text-foreground border border-input hover:bg-accent hover:text-accent-foreground",
   };
 
-  const Component = slug ? Link : "span";
-  const props = slug ? { href: `/category/${slug}` } : {};
+  if (slug) {
+    return (
+      <Link href={`/category/${slug}`} className={cn(baseClasses, variants[variant], className)}>
+        {category}
+      </Link>
+    );
+  }
 
   return (
-    <Component
-      className={cn(baseClasses, variants[variant], className)}
-      {...props}
-    >
+    <span className={cn(baseClasses, variants[variant], className)}>
       {category}
-    </Component>
+    </span>
   );
 }

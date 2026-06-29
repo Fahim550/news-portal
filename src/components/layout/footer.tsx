@@ -56,6 +56,9 @@ export function Footer() {
 
           {/* Quick Links */}
           <div>
+            <div>
+              hello div
+            </div>
             <h3 className="text-foreground mb-4 text-lg font-bold tracking-tight">
               Quick Links
             </h3>

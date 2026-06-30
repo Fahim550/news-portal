@@ -14,11 +14,11 @@ import {
 import { ColumnDef } from "@tanstack/react-table"
 import { Check, MoreHorizontal, Trash, X } from "lucide-react"
 
-import { useState } from "react"
 import { createClient } from "@/lib/supabase/client"
-import { useRouter } from "next/navigation"
-import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
+import { toast } from "sonner"
 
 export type CommentProfile = {
   id: string
@@ -43,7 +43,7 @@ const CommentActions = ({ comment }: { comment: CommentProfile }) => {
         .from("comments")
         .update({ status })
         .eq("id", comment.id)
-      
+
       if (error) throw error
       toast.success(`Comment ${status} successfully`)
       router.refresh()
@@ -56,14 +56,14 @@ const CommentActions = ({ comment }: { comment: CommentProfile }) => {
 
   const handleDelete = async () => {
     if (!confirm("Are you sure you want to delete this comment?")) return
-    
+
     setIsLoading(true)
     try {
       const { error } = await supabase
         .from("comments")
         .delete()
         .eq("id", comment.id)
-      
+
       if (error) throw error
       toast.success("Comment deleted successfully")
       router.refresh()
@@ -76,28 +76,47 @@ const CommentActions = ({ comment }: { comment: CommentProfile }) => {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-8 w-8 p-0" disabled={isLoading}>
-          <span className="sr-only">Open menu</span>
-          {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <MoreHorizontal className="h-4 w-4" />}
-        </Button>
+      <DropdownMenuTrigger
+        render={
+          <Button
+            variant="ghost"
+            className="h-8 w-8 p-0"
+            disabled={isLoading}
+          />
+        }
+      >
+        <span className="sr-only">Open menu</span>
+        {isLoading ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <MoreHorizontal className="h-4 w-4" />
+        )}
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
         {comment.status !== "approved" && (
-          <DropdownMenuItem onClick={() => handleUpdateStatus("approved")} className="text-emerald-600 focus:text-emerald-600 cursor-pointer">
+          <DropdownMenuItem
+            onClick={() => handleUpdateStatus("approved")}
+            className="cursor-pointer text-emerald-600 focus:text-emerald-600"
+          >
             <Check className="mr-2 h-4 w-4" />
             Approve
           </DropdownMenuItem>
         )}
         {comment.status !== "rejected" && (
-          <DropdownMenuItem onClick={() => handleUpdateStatus("rejected")} className="text-amber-600 focus:text-amber-600 cursor-pointer">
+          <DropdownMenuItem
+            onClick={() => handleUpdateStatus("rejected")}
+            className="cursor-pointer text-amber-600 focus:text-amber-600"
+          >
             <X className="mr-2 h-4 w-4" />
             Reject
           </DropdownMenuItem>
         )}
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleDelete} className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer">
+        <DropdownMenuItem
+          onClick={handleDelete}
+          className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer"
+        >
           <Trash className="mr-2 h-4 w-4" />
           Delete
         </DropdownMenuItem>
@@ -122,7 +141,7 @@ export const columns: ColumnDef<CommentProfile>[] = [
           </Avatar>
           <div className="flex flex-col">
             <span className="text-sm font-medium">{comment.authorName}</span>
-            <span className="text-muted-foreground font-mono text-xs truncate max-w-[150px]">
+            <span className="text-muted-foreground max-w-[150px] truncate font-mono text-xs">
               {comment.authorId}
             </span>
           </div>

@@ -6,7 +6,7 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
-export interface Database {
+export type Database = {
   public: {
     Tables: {
       advertisements: {
@@ -52,6 +52,7 @@ export interface Database {
           created_at?: string | null
           updated_at?: string | null
         }
+        Relationships: any[]
       }
       authors: {
         Row: {
@@ -84,6 +85,7 @@ export interface Database {
           created_at?: string | null
           updated_at?: string | null
         }
+        Relationships: any[]
       }
       categories: {
         Row: {
@@ -122,6 +124,7 @@ export interface Database {
           created_at?: string | null
           updated_at?: string | null
         }
+        Relationships: any[]
       }
       homepage_sections: {
         Row: {
@@ -157,6 +160,7 @@ export interface Database {
           created_at?: string | null
           updated_at?: string | null
         }
+        Relationships: any[]
       }
       news: {
         Row: {
@@ -234,6 +238,7 @@ export interface Database {
           created_at?: string | null
           updated_at?: string | null
         }
+        Relationships: any[]
       }
       news_tags: {
         Row: {
@@ -248,6 +253,7 @@ export interface Database {
           news_id?: string
           tag_id?: string
         }
+        Relationships: any[]
       }
       settings: {
         Row: {
@@ -289,6 +295,7 @@ export interface Database {
           created_at?: string | null
           updated_at?: string | null
         }
+        Relationships: any[]
       }
       tags: {
         Row: {
@@ -312,6 +319,136 @@ export interface Database {
           created_at?: string | null
           updated_at?: string | null
         }
+        Relationships: any[]
+      }
+      roles: {
+        Row: {
+          id: string
+          name: string
+          description: string | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          name: string
+          description?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          name?: string
+          description?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: any[]
+      }
+      profiles: {
+        Row: {
+          id: string
+          role_id: string | null
+          first_name: string | null
+          last_name: string | null
+          avatar_url: string | null
+          bio: string | null
+          social_links: Json | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          role_id?: string | null
+          first_name?: string | null
+          last_name?: string | null
+          avatar_url?: string | null
+          bio?: string | null
+          social_links?: Json | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          role_id?: string | null
+          first_name?: string | null
+          last_name?: string | null
+          avatar_url?: string | null
+          bio?: string | null
+          social_links?: Json | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: any[]
+      }
+      comments: {
+        Row: {
+          id: string
+          news_id: string | null
+          user_id: string | null
+          parent_id: string | null
+          content: string
+          status: string | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          news_id?: string | null
+          user_id?: string | null
+          parent_id?: string | null
+          content: string
+          status?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          news_id?: string | null
+          user_id?: string | null
+          parent_id?: string | null
+          content?: string
+          status?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: any[]
+      }
+      media: {
+        Row: {
+          id: string
+          uploader_id: string | null
+          file_name: string
+          file_path: string
+          file_type: string | null
+          file_size: number | null
+          alt_text: string | null
+          folder: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          uploader_id?: string | null
+          file_name: string
+          file_path: string
+          file_type?: string | null
+          file_size?: number | null
+          alt_text?: string | null
+          folder?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          uploader_id?: string | null
+          file_name?: string
+          file_path?: string
+          file_type?: string | null
+          file_size?: number | null
+          alt_text?: string | null
+          folder?: string | null
+          created_at?: string
+        }
+        Relationships: any[]
       }
     }
     Views: {

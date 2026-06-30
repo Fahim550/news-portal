@@ -38,8 +38,8 @@ const categoryFormSchema = z.object({
       message: "Slug can only contain lowercase letters, numbers, and hyphens.",
     }),
   description: z.string().optional(),
-  status: z.boolean().default(true),
-  sort_order: z.coerce.number().default(0),
+  status: z.boolean(),
+  sort_order: z.coerce.number(),
 })
 
 type CategoryFormValues = z.infer<typeof categoryFormSchema>
@@ -70,7 +70,7 @@ export function CategoryForm({ initialData }: CategoryFormProps) {
       }
 
   const form = useForm<CategoryFormValues>({
-    resolver: zodResolver(categoryFormSchema),
+    resolver: zodResolver(categoryFormSchema) as any,
     defaultValues,
   })
 

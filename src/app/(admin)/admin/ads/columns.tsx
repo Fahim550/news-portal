@@ -1,10 +1,6 @@
 "use client"
 
-import { useState } from "react"
-import { ColumnDef } from "@tanstack/react-table"
-import { Database } from "@/types/database.types"
 import { Badge } from "@/components/ui/badge"
-import { MoreHorizontal, Pencil, Trash } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -14,12 +10,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
-import { toast } from "sonner"
+import { Database } from "@/types/database.types"
+import { ColumnDef } from "@tanstack/react-table"
+import { MoreHorizontal, Pencil, Trash } from "lucide-react"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { useState } from "react"
+import { toast } from "sonner"
 
-export type Advertisement = Database["public"]["Tables"]["advertisements"]["Row"]
+export type Advertisement =
+  Database["public"]["Tables"]["advertisements"]["Row"]
 
 const AdActions = ({ ad }: { ad: Advertisement }) => {
   const router = useRouter()
@@ -27,11 +28,15 @@ const AdActions = ({ ad }: { ad: Advertisement }) => {
   const supabase = createClient()
 
   const handleDelete = async () => {
-    if (!window.confirm("Are you sure you want to delete this advertisement?")) return
+    if (!window.confirm("Are you sure you want to delete this advertisement?"))
+      return
 
     setIsDeleting(true)
     try {
-      const { error } = await supabase.from("advertisements").delete().eq("id", ad.id)
+      const { error } = await supabase
+        .from("advertisements")
+        .delete()
+        .eq("id", ad.id)
       if (error) throw error
       toast.success("Advertisement deleted successfully")
       router.refresh()
@@ -44,22 +49,30 @@ const AdActions = ({ ad }: { ad: Advertisement }) => {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-8 w-8 p-0" disabled={isDeleting}>
-          <span className="sr-only">Open menu</span>
-          <MoreHorizontal className="h-4 w-4" />
-        </Button>
+      <DropdownMenuTrigger
+        render={
+          <Button
+            variant="ghost"
+            className="h-8 w-8 p-0"
+            disabled={isDeleting}
+          />
+        }
+      >
+        <span className="sr-only">Open menu</span>
+        <MoreHorizontal className="h-4 w-4" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-        <DropdownMenuItem asChild>
-          <Link href={`/admin/ads/${ad.id}`}>
-            <Pencil className="mr-2 h-4 w-4" />
-            Edit Ad
-          </Link>
-        </DropdownMenuItem>
+        <DropdownMenuItem
+          render={
+            <Link href={`/admin/ads/${ad.id}`}>
+              <Pencil className="mr-2 h-4 w-4" />
+              Edit Ad
+            </Link>
+          }
+        />
         <DropdownMenuSeparator />
-        <DropdownMenuItem 
+        <DropdownMenuItem
           onClick={handleDelete}
           className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer"
         >
@@ -77,7 +90,7 @@ export const columns: ColumnDef<Advertisement>[] = [
     header: "Name",
     cell: ({ row }) => (
       <div className="font-medium">{row.getValue("name")}</div>
-    )
+    ),
   },
   {
     accessorKey: "position",
@@ -86,7 +99,7 @@ export const columns: ColumnDef<Advertisement>[] = [
       const position = row.getValue("position") as string
       return (
         <Badge variant="outline">
-          {position.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase())}
+          {position.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
         </Badge>
       )
     },

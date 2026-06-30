@@ -50,7 +50,7 @@ const adFormSchema = z.object({
   redirect_url: z.string().url({ message: "Must be a valid URL" }).optional().or(z.literal("")),
   adsense_code: z.string().optional(),
   custom_html: z.string().optional(),
-  is_active: z.boolean().default(true),
+  is_active: z.boolean(),
 })
 
 type AdFormValues = z.infer<typeof adFormSchema>
@@ -85,7 +85,7 @@ export function AdForm({ initialData }: AdFormProps) {
       }
 
   const form = useForm<AdFormValues>({
-    resolver: zodResolver(adFormSchema),
+    resolver: zodResolver(adFormSchema) as any,
     defaultValues,
   })
 

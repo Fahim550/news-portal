@@ -72,14 +72,16 @@ export function RoleForm({ role, children }: RoleFormProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {children || (
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            Create Custom Role
-          </Button>
-        )}
-      </DialogTrigger>
+      <DialogTrigger
+        render={
+          <>{children || (
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Create Custom Role
+            </Button>
+          )}</>
+        }
+      />
       <DialogContent className="sm:max-w-[425px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>

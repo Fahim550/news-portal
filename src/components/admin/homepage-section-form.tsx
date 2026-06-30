@@ -40,9 +40,9 @@ const sectionFormSchema = z.object({
     message: "Type is required.",
   }),
   category_id: z.string().uuid().optional().nullable(),
-  article_count: z.coerce.number().min(1).max(20).default(5),
-  sort_order: z.coerce.number().default(0),
-  is_active: z.boolean().default(true),
+  article_count: z.coerce.number().min(1).max(20),
+  sort_order: z.coerce.number(),
+  is_active: z.boolean(),
 })
 
 type SectionFormValues = z.infer<typeof sectionFormSchema>
@@ -76,7 +76,7 @@ export function HomepageSectionForm({ initialData, categories }: SectionFormProp
       }
 
   const form = useForm<SectionFormValues>({
-    resolver: zodResolver(sectionFormSchema),
+    resolver: zodResolver(sectionFormSchema) as any,
     defaultValues,
   })
 

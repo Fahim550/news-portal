@@ -51,11 +51,11 @@ const newsFormSchema = z.object({
   featured_image: z.string().optional(),
   category_id: z.string().uuid().optional().nullable(),
   author_id: z.string().uuid().optional().nullable(),
-  is_breaking: z.boolean().default(false),
-  is_featured: z.boolean().default(false),
-  is_trending: z.boolean().default(false),
-  is_editors_choice: z.boolean().default(false),
-  status: z.enum(["draft", "published", "pending"]).default("draft"),
+  is_breaking: z.boolean(),
+  is_featured: z.boolean(),
+  is_trending: z.boolean(),
+  is_editors_choice: z.boolean(),
+  status: z.enum(["draft", "published", "pending"]),
   seo_title: z.string().optional(),
   seo_description: z.string().optional(),
 })
@@ -108,7 +108,7 @@ export function NewsForm({ initialData, categories, authors }: NewsFormProps) {
       }
 
   const form = useForm<NewsFormValues>({
-    resolver: zodResolver(newsFormSchema),
+    resolver: zodResolver(newsFormSchema) as any,
     defaultValues,
   })
 

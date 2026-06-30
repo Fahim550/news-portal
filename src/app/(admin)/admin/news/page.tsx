@@ -14,7 +14,7 @@ export default async function NewsPage() {
     .select(
       `
       *,
-      category:categories(name)
+      category:categories!news_category_id_fkey(name)
     `
     )
     .order("created_at", { ascending: false })

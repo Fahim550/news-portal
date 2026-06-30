@@ -1,21 +1,5 @@
-"use client";
+"use client"
 
-import { 
-  LayoutDashboard, 
-  Newspaper, 
-  Tags, 
-  FolderTree,
-  Users,
-  Image as ImageIcon,
-  MessageSquare,
-  Settings,
-  Megaphone,
-  BarChart,
-  ShieldAlert,
-  MenuSquare
-} from "lucide-react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import {
   Sidebar,
   SidebarContent,
@@ -26,8 +10,25 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar";
-import { Logo } from "@/components/layout/logo";
+} from "@/components/ui/sidebar"
+import {
+  BarChart,
+  FolderTree,
+  Image as ImageIcon,
+  LayoutDashboard,
+  Megaphone,
+  MenuSquare,
+  MessageSquare,
+  Newspaper,
+  Settings,
+  ShieldAlert,
+  Tags,
+  Users,
+} from "lucide-react"
+import Image from "next/image"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import Logo from "../../../public/images/logo.png"
 
 const MENU_ITEMS = [
   {
@@ -35,7 +36,7 @@ const MENU_ITEMS = [
     items: [
       { title: "Dashboard", icon: LayoutDashboard, url: "/admin" },
       { title: "Analytics", icon: BarChart, url: "/admin/analytics" },
-    ]
+    ],
   },
   {
     title: "Content",
@@ -43,21 +44,21 @@ const MENU_ITEMS = [
       { title: "News", icon: Newspaper, url: "/admin/news" },
       { title: "Categories", icon: FolderTree, url: "/admin/categories" },
       { title: "Tags", icon: Tags, url: "/admin/tags" },
-    ]
+    ],
   },
   {
     title: "Media",
     items: [
       { title: "Media Library", icon: ImageIcon, url: "/admin/media" },
       { title: "Advertisements", icon: Megaphone, url: "/admin/ads" },
-    ]
+    ],
   },
   {
     title: "Engagement",
     items: [
       { title: "Comments", icon: MessageSquare, url: "/admin/comments" },
       { title: "Users & Authors", icon: Users, url: "/admin/users" },
-    ]
+    ],
   },
   {
     title: "System",
@@ -65,18 +66,25 @@ const MENU_ITEMS = [
       { title: "Pages & Menus", icon: MenuSquare, url: "/admin/pages" },
       { title: "Roles & Permissions", icon: ShieldAlert, url: "/admin/roles" },
       { title: "Settings", icon: Settings, url: "/admin/settings" },
-    ]
-  }
-];
+    ],
+  },
+]
 
 export function AdminSidebar() {
-  const pathname = usePathname();
+  const pathname = usePathname()
 
   return (
     <Sidebar variant="sidebar" collapsible="icon">
-      <SidebarHeader className="border-b border-border/50 h-16 flex items-center px-4">
+      <SidebarHeader className="border-border/50 flex h-16 items-center border-b px-0">
         <div className="flex items-center overflow-hidden transition-all duration-200">
-          <Logo />
+          <Image
+            src={Logo}
+            alt="Logo"
+            width={200}
+            height={80}
+            className="h-12 w-auto md:h-[60px]"
+            priority
+          />
         </div>
       </SidebarHeader>
       <SidebarContent>
@@ -87,7 +95,14 @@ export function AdminSidebar() {
               <SidebarMenu>
                 {group.items.map((item) => (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton render={<Link href={item.url} />} isActive={pathname === item.url || pathname.startsWith(`${item.url}/`)} tooltip={item.title}>
+                    <SidebarMenuButton
+                      render={<Link href={item.url} />}
+                      isActive={
+                        pathname === item.url ||
+                        pathname.startsWith(`${item.url}/`)
+                      }
+                      tooltip={item.title}
+                    >
                       <item.icon />
                       <span>{item.title}</span>
                     </SidebarMenuButton>
@@ -99,5 +114,5 @@ export function AdminSidebar() {
         ))}
       </SidebarContent>
     </Sidebar>
-  );
+  )
 }

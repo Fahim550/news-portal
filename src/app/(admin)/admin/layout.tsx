@@ -1,23 +1,23 @@
-import { SidebarProvider } from "@/components/ui/sidebar";
-import { AdminSidebar } from "@/components/admin/admin-sidebar";
-import { AdminHeader } from "@/components/admin/admin-header";
+import { AdminHeader } from "@/components/admin/admin-header"
+import { AdminSidebar } from "@/components/admin/admin-sidebar"
+import { SidebarProvider } from "@/components/ui/sidebar"
 
 export default function AdminLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
   return (
     <SidebarProvider>
-      <div className="flex h-screen w-full overflow-hidden bg-background">
+      <div className="bg-background flex h-screen w-full overflow-hidden">
         <AdminSidebar />
-        <div className="flex flex-col flex-1 min-w-0 h-full overflow-hidden">
+        <div className="flex h-full min-w-0 flex-1 flex-col overflow-hidden">
           <AdminHeader />
-          <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 bg-muted/20">
+          <main className="bg-muted/20 flex-1 overflow-y-auto p-2">
             {children}
           </main>
         </div>
       </div>
     </SidebarProvider>
-  );
+  )
 }

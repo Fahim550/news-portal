@@ -10,6 +10,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarFooter,
 } from "@/components/ui/sidebar"
 import {
   BarChart,
@@ -24,10 +25,13 @@ import {
   ShieldAlert,
   Tags,
   Users,
+  LogOut,
 } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
+import { createClient } from "@/lib/supabase/client"
+import { toast } from "sonner"
 import Logo from "../../../public/images/logo.png"
 
 const MENU_ITEMS = [
@@ -72,6 +76,20 @@ const MENU_ITEMS = [
 
 export function AdminSidebar() {
   const pathname = usePathname()
+  const router = useRouter()
+  const supabase = createClient()
+
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut()
+      if (error) throw error
+      toast.success("Logged out successfully")
+      router.push("/login")
+      router.refresh()
+    } catch (error: any) {
+      toast.error(error.message || "Failed to log out")
+    }
+  }
 
   return (
     <Sidebar variant="sidebar" collapsible="icon">
@@ -113,6 +131,16 @@ export function AdminSidebar() {
           </SidebarGroup>
         ))}
       </SidebarContent>
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton onClick={handleLogout} tooltip="Logout" className="text-destructive hover:text-destructive hover:bg-destructive/10">
+              <LogOut className="text-destructive" />
+              <span>Logout</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
     </Sidebar>
   )
 }

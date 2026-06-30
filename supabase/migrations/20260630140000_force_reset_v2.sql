@@ -23,26 +23,26 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- ROLES & PERMISSIONS
 CREATE TABLE public.roles (
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    id VARCHAR(50) PRIMARY KEY,
     name VARCHAR(50) UNIQUE NOT NULL,
     description TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
 -- Insert Default Roles
-INSERT INTO public.roles (name, description) VALUES
-('Super Admin', 'Full access to all system features'),
-('Admin', 'Administrative access with most privileges'),
-('Editor', 'Can manage all content, categories, and tags'),
-('Reporter', 'Can submit news for review'),
-('Author', 'Can write and manage own articles'),
-('Moderator', 'Can moderate comments and user content'),
-('Reader', 'Standard authenticated user');
+INSERT INTO public.roles (id, name, description) VALUES
+('super_admin', 'Super Admin', 'Full access to all system features'),
+('admin', 'Admin', 'Administrative access with most privileges'),
+('editor', 'Editor', 'Can manage all content, categories, and tags'),
+('reporter', 'Reporter', 'Can submit news for review'),
+('author', 'Author', 'Can write and manage own articles'),
+('moderator', 'Moderator', 'Can moderate comments and user content'),
+('reader', 'Reader', 'Standard authenticated user');
 
 -- PROFILES (Extends auth.users)
 CREATE TABLE public.profiles (
     id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
-    role_id UUID REFERENCES public.roles(id) ON DELETE SET NULL,
+    role_id VARCHAR(50) REFERENCES public.roles(id) ON DELETE SET NULL,
     first_name VARCHAR(100),
     last_name VARCHAR(100),
     avatar_url TEXT,
@@ -273,3 +273,38 @@ CREATE TRIGGER update_pages_updated_at BEFORE UPDATE ON public.pages FOR EACH RO
 -- Enable Realtime for specific tables
 ALTER PUBLICATION supabase_realtime ADD TABLE public.news;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.comments;
+
+-- --------------------------------------------------------
+-- AUTH TRIGGER FOR NEW USERS
+-- --------------------------------------------------------
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger AS $$
+DECLARE
+  is_first_user BOOLEAN;
+  assigned_role VARCHAR(50);
+BEGIN
+  -- Check if this is the first user in the profiles table
+  SELECT NOT EXISTS (SELECT 1 FROM public.profiles LIMIT 1) INTO is_first_user;
+
+  IF is_first_user THEN
+    assigned_role := 'super_admin';
+  ELSE
+    assigned_role := 'reader';
+  END IF;
+
+  INSERT INTO public.profiles (id, role_id, first_name, last_name)
+  VALUES (
+    new.id,
+    assigned_role,
+    COALESCE(new.raw_user_meta_data->>'first_name', ''),
+    COALESCE(new.raw_user_meta_data->>'last_name', '')
+  );
+  RETURN new;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Trigger the function every time a user is created
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();

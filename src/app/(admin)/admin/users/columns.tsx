@@ -1,104 +1,135 @@
 "use client"
 
-import { useState } from "react"
-import { ColumnDef } from "@tanstack/react-table"
-import { Database } from "@/types/database.types"
-import { MoreHorizontal, Pencil, Trash } from "lucide-react"
+import { UserForm } from "@/components/admin/user-form"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
-import { toast } from "sonner"
+import { ColumnDef } from "@tanstack/react-table"
+import { MoreHorizontal, ShieldAlert, Trash } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { useState } from "react"
+import { toast } from "sonner"
 
-export type Author = Database["public"]["Tables"]["authors"]["Row"]
+// Define the shape of our profile data, including the joined role name
+export type UserProfile = {
+  id: string
+  first_name: string | null
+  last_name: string | null
+  avatar_url: string | null
+  created_at: string
+  role_id: string | null
+  roles: { name: string } | null
+}
 
-const AuthorActions = ({ author }: { author: Author }) => {
+const UserActions = ({ user }: { user: UserProfile }) => {
   const router = useRouter()
   const [isDeleting, setIsDeleting] = useState(false)
+  const [showEdit, setShowEdit] = useState(false)
   const supabase = createClient()
 
   const handleDelete = async () => {
-    if (!window.confirm("Are you sure you want to delete this author?")) return
-
-    setIsDeleting(true)
-    try {
-      const { error } = await supabase.from("authors").delete().eq("id", author.id)
-      if (error) throw error
-      toast.success("Author deleted successfully")
-      router.refresh()
-    } catch (error: any) {
-      toast.error(error.message || "Failed to delete author")
-    } finally {
-      setIsDeleting(false)
-    }
+    // Ideally, deleting a user should be done via the Admin API to also remove the auth user
+    toast.error(
+      "Deleting users must be done via Supabase dashboard or a dedicated Admin API endpoint"
+    )
   }
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-8 w-8 p-0" disabled={isDeleting}>
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          render={
+            <Button
+              variant="ghost"
+              className="h-8 w-8 p-0"
+              disabled={isDeleting}
+            />
+          }
+        >
           <span className="sr-only">Open menu</span>
           <MoreHorizontal className="h-4 w-4" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-        <DropdownMenuItem asChild>
-          <Link href={`/admin/users/${author.id}`}>
-            <Pencil className="mr-2 h-4 w-4" />
-            Edit Author
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem 
-          onClick={handleDelete}
-          className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer"
-        >
-          <Trash className="mr-2 h-4 w-4" />
-          Delete
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuGroup>
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+
+            <DropdownMenuItem
+              onClick={() => setShowEdit(true)}
+              className="cursor-pointer"
+            >
+              Edit User
+            </DropdownMenuItem>
+
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={handleDelete}
+              className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer"
+            >
+              <Trash className="mr-2 h-4 w-4" />
+              Delete Profile
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <UserForm user={user} open={showEdit} onOpenChange={setShowEdit} />
+    </>
   )
 }
 
-export const columns: ColumnDef<Author>[] = [
+export const columns: ColumnDef<UserProfile>[] = [
   {
     accessorKey: "name",
-    header: "Author",
+    header: "User",
     cell: ({ row }) => {
-      const author = row.original
+      const user = row.original
+      const fullName =
+        `${user.first_name || ""} ${user.last_name || ""}`.trim() ||
+        "Unknown User"
       return (
         <div className="flex items-center gap-3">
           <Avatar className="h-9 w-9">
-            <AvatarImage src={author.photo || ""} alt={author.name} />
-            <AvatarFallback>{author.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+            <AvatarImage src={user.avatar_url || ""} alt={fullName} />
+            <AvatarFallback>
+              {fullName.substring(0, 2).toUpperCase()}
+            </AvatarFallback>
           </Avatar>
           <div className="flex flex-col">
-            <span className="font-medium">{author.name}</span>
-            <span className="text-xs text-muted-foreground">{author.slug}</span>
+            <span className="font-medium">{fullName}</span>
+            <span className="text-muted-foreground max-w-[150px] truncate font-mono text-xs">
+              {user.id}
+            </span>
           </div>
         </div>
       )
-    }
+    },
   },
   {
-    accessorKey: "bio",
-    header: "Bio",
-    cell: ({ row }) => (
-      <div className="max-w-[300px] truncate" title={row.getValue("bio") || ""}>
-        {row.getValue("bio") || <span className="text-muted-foreground italic">No bio</span>}
-      </div>
-    )
+    accessorKey: "roles.name",
+    header: "Role",
+    cell: ({ row }) => {
+      const roleName = row.original.roles?.name
+      return roleName ? (
+        <Badge variant="secondary" className="flex w-fit items-center gap-1">
+          {roleName === "Super Admin" || roleName === "Admin" ? (
+            <ShieldAlert className="h-3 w-3" />
+          ) : null}
+          {roleName}
+        </Badge>
+      ) : (
+        <span className="text-muted-foreground italic">No Role</span>
+      )
+    },
   },
   {
     accessorKey: "created_at",
@@ -111,7 +142,7 @@ export const columns: ColumnDef<Author>[] = [
   {
     id: "actions",
     cell: ({ row }) => {
-      return <AuthorActions author={row.original} />
+      return <UserActions user={row.original} />
     },
   },
 ]

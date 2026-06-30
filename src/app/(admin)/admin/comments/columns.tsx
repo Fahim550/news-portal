@@ -14,10 +14,16 @@ import {
 import { ColumnDef } from "@tanstack/react-table"
 import { Check, MoreHorizontal, Trash, X } from "lucide-react"
 
-export type CommentMock = {
+import { useState } from "react"
+import { createClient } from "@/lib/supabase/client"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
+import { Loader2 } from "lucide-react"
+
+export type CommentProfile = {
   id: string
   authorName: string
-  authorEmail: string
+  authorId: string
   authorAvatar?: string
   content: string
   articleTitle: string
@@ -25,31 +31,73 @@ export type CommentMock = {
   createdAt: string
 }
 
-const CommentActions = ({ comment }: { comment: CommentMock }) => {
+const CommentActions = ({ comment }: { comment: CommentProfile }) => {
+  const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter()
+  const supabase = createClient()
+
+  const handleUpdateStatus = async (status: "approved" | "rejected") => {
+    setIsLoading(true)
+    try {
+      const { error } = await supabase
+        .from("comments")
+        .update({ status })
+        .eq("id", comment.id)
+      
+      if (error) throw error
+      toast.success(`Comment ${status} successfully`)
+      router.refresh()
+    } catch (error: any) {
+      toast.error(error.message || `Failed to update comment`)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleDelete = async () => {
+    if (!confirm("Are you sure you want to delete this comment?")) return
+    
+    setIsLoading(true)
+    try {
+      const { error } = await supabase
+        .from("comments")
+        .delete()
+        .eq("id", comment.id)
+      
+      if (error) throw error
+      toast.success("Comment deleted successfully")
+      router.refresh()
+    } catch (error: any) {
+      toast.error(error.message || "Failed to delete comment")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-8 w-8 p-0">
+        <Button variant="ghost" className="h-8 w-8 p-0" disabled={isLoading}>
           <span className="sr-only">Open menu</span>
-          <MoreHorizontal className="h-4 w-4" />
+          {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <MoreHorizontal className="h-4 w-4" />}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
         {comment.status !== "approved" && (
-          <DropdownMenuItem className="text-emerald-600 focus:text-emerald-600">
+          <DropdownMenuItem onClick={() => handleUpdateStatus("approved")} className="text-emerald-600 focus:text-emerald-600 cursor-pointer">
             <Check className="mr-2 h-4 w-4" />
             Approve
           </DropdownMenuItem>
         )}
         {comment.status !== "rejected" && (
-          <DropdownMenuItem className="text-amber-600 focus:text-amber-600">
+          <DropdownMenuItem onClick={() => handleUpdateStatus("rejected")} className="text-amber-600 focus:text-amber-600 cursor-pointer">
             <X className="mr-2 h-4 w-4" />
             Reject
           </DropdownMenuItem>
         )}
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer">
+        <DropdownMenuItem onClick={handleDelete} className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer">
           <Trash className="mr-2 h-4 w-4" />
           Delete
         </DropdownMenuItem>
@@ -58,7 +106,7 @@ const CommentActions = ({ comment }: { comment: CommentMock }) => {
   )
 }
 
-export const columns: ColumnDef<CommentMock>[] = [
+export const columns: ColumnDef<CommentProfile>[] = [
   {
     accessorKey: "authorName",
     header: "Author",
@@ -74,8 +122,8 @@ export const columns: ColumnDef<CommentMock>[] = [
           </Avatar>
           <div className="flex flex-col">
             <span className="text-sm font-medium">{comment.authorName}</span>
-            <span className="text-muted-foreground text-xs">
-              {comment.authorEmail}
+            <span className="text-muted-foreground font-mono text-xs truncate max-w-[150px]">
+              {comment.authorId}
             </span>
           </div>
         </div>

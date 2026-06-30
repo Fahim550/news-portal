@@ -1,23 +1,59 @@
-import { SidebarProvider } from "@/components/ui/sidebar";
-import { AdminSidebar } from "@/components/admin/admin-sidebar";
-import { AdminHeader } from "@/components/admin/admin-header";
+import { AdminHeader } from "@/components/admin/admin-header"
+import { AdminSidebar } from "@/components/admin/admin-sidebar"
+import { SidebarProvider } from "@/components/ui/sidebar"
+import { createClient } from "@/lib/supabase/server"
+import { redirect } from "next/navigation"
 
-export default function AdminLayout({
+export default async function AdminLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    redirect("/login")
+  }
+
+  // Check role
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("roles(name)")
+    .eq("id", user.id)
+    .single<any>()
+
+  const roleName = profile?.roles?.name
+
+  // Basic protection: Only allow non-Readers to access dashboard
+  // Alternatively, you can have a specific whitelist:
+  const allowedRoles = [
+    "Super Admin",
+    "Admin",
+    "Editor",
+    "Author",
+    "Moderator",
+    "Reporter",
+  ]
+  if (!roleName || !allowedRoles.includes(roleName)) {
+    // If they don't have permission, send them to homepage or an unauthorized page
+    redirect("/")
+  }
+
   return (
     <SidebarProvider>
-      <div className="flex h-screen w-full overflow-hidden bg-background">
+      <div className="bg-background flex h-screen w-full overflow-hidden">
         <AdminSidebar />
-        <div className="flex flex-col flex-1 min-w-0 h-full overflow-hidden">
+        <div className="flex h-full min-w-0 flex-1 flex-col overflow-hidden">
           <AdminHeader />
-          <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 bg-muted/20">
+          <main className="bg-muted/20 flex-1 overflow-y-auto p-2">
             {children}
           </main>
         </div>
       </div>
     </SidebarProvider>
-  );
+  )
 }

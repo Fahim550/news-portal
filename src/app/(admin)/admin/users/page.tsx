@@ -1,40 +1,47 @@
 import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/ui/data-table"
 import { createClient } from "@/lib/supabase/server"
-import { Plus } from "lucide-react"
-import Link from "next/link"
 import { columns } from "./columns"
+import { UserForm } from "@/components/admin/user-form"
+
+export const revalidate = 0
 
 export default async function UsersPage() {
   const supabase = await createClient()
 
-  const { data: authors, error } = await supabase
-    .from("authors")
-    .select("*")
-    .order("name", { ascending: true })
+  // Fetch user profiles and their associated role name
+  const { data: users, error } = await supabase
+    .from("profiles")
+    .select(`
+      id,
+      first_name,
+      last_name,
+      avatar_url,
+      created_at,
+      role_id,
+      roles (
+        name
+      )
+    `)
+    .order("created_at", { ascending: false })
 
   if (error) {
-    console.error("Error fetching authors:", error)
+    console.error("Error fetching users:", error)
   }
 
   return (
     <div className="flex flex-col gap-6 p-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Users & Authors</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Users & Roles</h1>
           <p className="text-muted-foreground text-sm mt-1">
-            Manage article authors, editors, and platform users.
+            Manage system users, editors, and platform access.
           </p>
         </div>
-        <Button asChild>
-          <Link href="/admin/users/new">
-            <Plus className="mr-2 h-4 w-4" />
-            Add Author
-          </Link>
-        </Button>
+        <UserForm />
       </div>
       <div className="bg-card rounded-lg border border-border shadow-sm p-1">
-        <DataTable columns={columns} data={authors || []} />
+        <DataTable columns={columns as any} data={users || []} />
       </div>
     </div>
   )

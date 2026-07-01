@@ -197,11 +197,11 @@ export function HeroSection() {
 
           {/* Editor Section */}
           <div className="flex flex-col overflow-hidden rounded-sm border border-gray-200 bg-white">
-            <div className="flex items-center justify-center gap-2 border-b-2 border-[#0b753a]/20 bg-[#0b753a]/5 px-4 py-3">
+            {/* <div className="flex items-center justify-center gap-2 border-b-2 border-[#0b753a]/20 bg-[#0b753a]/5 px-4 py-3">
               <span className="text-[17px] font-bold text-[#0b753a]">
                 আমাদের সম্পাদক
               </span>
-            </div>
+            </div> */}
             <div className="flex flex-col items-center justify-center gap-4 bg-gradient-to-b from-white to-gray-50/50 px-6 py-4 text-center">
               <div className="relative h-36 w-36 overflow-hidden rounded-xl border-4 border-white shadow-md ring-1 ring-gray-100">
                 <Image

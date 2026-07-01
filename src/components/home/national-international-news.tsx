@@ -1,8 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
 
-export function NationalInternationalNews() {
-  const nationalNews = [
+export async function NationalInternationalNews() {
+  const mockNationalNews = [
     { title: "বাজেটে মানবসম্পদ উন্নয়ন ও অবকাঠামো খাতকে সর্বোচ্চ গুরুত্ব দেওয়া হয়েছে: রবিউল আলম", image: "https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?q=80&w=400&auto=format&fit=crop" },
     { title: "ব্যাংক খাত সংস্কারে বাংলাদেশকে ৪৫ কোটি ডলার ঋণ দিচ্ছে বিশ্বব্যাংক", image: "https://images.unsplash.com/photo-1541336032412-2048a678540d?q=80&w=400&auto=format&fit=crop" },
     { title: "সুদভিত্তিক অর্থনীতির কবর রচনা করে জাকাতভিত্তিক অর্থনীতি চালুর দাবি সংসদে", image: "https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?q=80&w=400&auto=format&fit=crop" },
@@ -14,7 +15,7 @@ export function NationalInternationalNews() {
     { title: "নিয়ন্ত্রণ ও সুশাসনের অভাবে বীমাসহ আর্থিক খাতের নিয়ন্ত্রক সংস্থাগুলোর প্রতি আস্থা কমেছে: তিতুমীর", image: "https://images.unsplash.com/photo-1556761175-4b46a572b786?q=80&w=400&auto=format&fit=crop" },
   ];
 
-  const internationalNews = [
+  const mockInternationalNews = [
     { title: "হরমুজ প্রণালি ইরানের নিয়ন্ত্রণে থাকবে: আরাঘচি", image: "https://images.unsplash.com/photo-1560415755-bd80d06eda60?q=80&w=400&auto=format&fit=crop" },
     { title: "কিম ঘাঁটিগুলোকে 'নরকে পরিণত' করার হুঁশিয়ারি আইআরজিসির", image: "https://images.unsplash.com/photo-1586528116311-ad8ed7c15b07?q=80&w=400&auto=format&fit=crop" },
     { title: "করাচিতে সেনা ক্যাম্পে সন্ত্রাসী হামলা, নিহত ৩ সেনাসহ ৬", image: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?q=80&w=400&auto=format&fit=crop" },
@@ -23,6 +24,60 @@ export function NationalInternationalNews() {
     { title: "ইসরায়েল-লেবানন শান্তিচুক্তির প্রতিবাদে বৈরুতে বিক্ষোভ, গৃহযুদ্ধের আশঙ্কা হিজবুল্লাহর", image: "https://images.unsplash.com/photo-1541336032412-2048a678540d?q=80&w=400&auto=format&fit=crop" },
     { title: "মার্কিন হামলাকে শান্তি চুক্তির স্পষ্ট লঙ্ঘন বলল ইরান", image: "https://images.unsplash.com/photo-1621981386829-9b458a2cddde?q=80&w=400&auto=format&fit=crop" },
   ];
+
+  const supabase = await createClient();
+
+  // 1. Fetch National Category ID
+  const { data: nationalCat } = await supabase
+    .from("categories")
+    .select("id")
+    .eq("slug", "national")
+    .single();
+
+  let nationalDbNews: any = null;
+  if (nationalCat) {
+    const { data } = await supabase
+      .from("news")
+      .select("title, featured_image")
+      .eq("category_id", nationalCat.id)
+      .eq("status", "published")
+      .order("published_at", { ascending: false })
+      .limit(9);
+    nationalDbNews = data;
+  }
+
+  const nationalNews = nationalDbNews && nationalDbNews.length > 0 
+    ? nationalDbNews.map((n: any) => ({
+        title: n.title,
+        image: n.featured_image || "https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?q=80&w=400&auto=format&fit=crop"
+      }))
+    : mockNationalNews;
+
+  // 2. Fetch International Category ID
+  const { data: internationalCat } = await supabase
+    .from("categories")
+    .select("id")
+    .eq("slug", "international")
+    .single();
+
+  let internationalDbNews: any = null;
+  if (internationalCat) {
+    const { data } = await supabase
+      .from("news")
+      .select("title, featured_image")
+      .eq("category_id", internationalCat.id)
+      .eq("status", "published")
+      .order("published_at", { ascending: false })
+      .limit(7);
+    internationalDbNews = data;
+  }
+
+  const internationalNews = internationalDbNews && internationalDbNews.length > 0 
+    ? internationalDbNews.map((n: any) => ({
+        title: n.title,
+        image: n.featured_image || "https://images.unsplash.com/photo-1560415755-bd80d06eda60?q=80&w=400&auto=format&fit=crop"
+      }))
+    : mockInternationalNews;
 
   return (
     <>

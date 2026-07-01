@@ -14,6 +14,19 @@ import { BreakingNewsTicker } from "./breaking-news-ticker"
 import { SideMenu } from "./side-menu"
 
 export async function Header() {
+  const mockNavLinks = [
+    { name: "জাতীয়", href: "/national" },
+    { name: "অর্থনীতি", href: "/archives/category/economics" },
+    { name: "ব্যবসা", href: "/business" },
+    { name: "বিনিয়োগ", href: "/investment" },
+    { name: "আন্তর্জাতিক", href: "/archives/category/international" },
+    { name: "রাজনীতি", href: "/archives/category/politics" },
+    { name: "অপরাধ ও দুর্নীতি", href: "/archives/category/crime" },
+    { name: "খেলাধুলা", href: "/archives/category/sports" },
+    { name: "বিনোদন", href: "/archives/category/entertainment" },
+    { name: "তথ্যপ্রযুক্তি", href: "/archives/category/technology" },
+  ]
+
   const supabase = await createClient()
   const { data: categories } = await supabase
     .from("categories")
@@ -22,10 +35,12 @@ export async function Header() {
     .order("sort_order", { ascending: true })
 
   const navLinks =
-    categories?.map((cat) => ({
-      name: cat.name,
-      href: `/${cat.slug}`,
-    })) || []
+    categories && categories.length > 0
+      ? categories.map((cat) => ({
+          name: cat.name,
+          href: `/${cat.slug}`,
+        }))
+      : mockNavLinks
   return (
     <>
       <header className="flex w-full flex-col bg-white">

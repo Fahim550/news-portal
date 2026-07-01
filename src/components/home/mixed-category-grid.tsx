@@ -1,11 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Laptop, BookOpen, MapPin, Grid } from "lucide-react";
+import { createClient } from "@/lib/supabase/server";
 
-export function MixedCategoryGrid() {
-  const categories = [
+export async function MixedCategoryGrid() {
+  const mockCategories = [
     {
       title: "টেক",
+      slug: "technology",
       icon: <Laptop className="w-4 h-4 text-[#042a59]" />,
       featured: {
         title: "এসবই শসা ব্যবহার বাড়ছে গুগল, উষ্মেণ এশিয়ার শেয়ারবাজার",
@@ -20,6 +22,7 @@ export function MixedCategoryGrid() {
     },
     {
       title: "শিক্ষা",
+      slug: "education",
       icon: <BookOpen className="w-4 h-4 text-[#042a59]" />,
       featured: {
         title: "বিশ্বকাপ চলাকালে ঢাবি ক্যাম্পাসে বহিরাগত প্রবেশে নিষেধাজ্ঞা",
@@ -34,6 +37,7 @@ export function MixedCategoryGrid() {
     },
     {
       title: "সারাদেশ",
+      slug: "country",
       icon: <MapPin className="w-4 h-4 text-[#042a59]" />,
       featured: {
         title: "বাস খাদে পড়ে ৫ জন নিহত, আহত ১০",
@@ -48,6 +52,7 @@ export function MixedCategoryGrid() {
     },
     {
       title: "বিবিধ",
+      slug: "miscellaneous",
       icon: <Grid className="w-4 h-4 text-[#042a59]" />,
       featured: {
         title: "ফ্রান্স-বাংলাদেশ চেম্বারের নতুন কমিটি গঠন",
@@ -61,6 +66,44 @@ export function MixedCategoryGrid() {
       ]
     }
   ];
+
+  const supabase = await createClient();
+
+  const categories = await Promise.all(
+    mockCategories.map(async (mockCat) => {
+      const { data: category } = await supabase
+        .from("categories")
+        .select("id")
+        .eq("slug", mockCat.slug)
+        .single();
+
+      if (!category) return mockCat;
+
+      const { data: dbNews } = await supabase
+        .from("news")
+        .select("id, title, featured_image, is_featured")
+        .eq("category_id", category.id)
+        .eq("status", "published")
+        .order("published_at", { ascending: false })
+        .limit(5);
+
+      if (!dbNews || dbNews.length === 0) return mockCat;
+
+      const featuredDbNews = dbNews.find((n) => n.is_featured) || dbNews[0];
+      const listNews = dbNews.filter((n) => n.id !== featuredDbNews?.id).slice(0, 4);
+
+      return {
+        ...mockCat,
+        featured: {
+          title: featuredDbNews.title,
+          image: featuredDbNews.featured_image || mockCat.featured.image,
+        },
+        list: listNews.length > 0 
+          ? listNews.map(n => ({ title: n.title, image: n.featured_image || mockCat.list[0].image }))
+          : mockCat.list
+      };
+    })
+  );
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 lg:gap-8 mt-6">

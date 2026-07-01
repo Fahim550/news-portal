@@ -1,8 +1,27 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Globe } from "lucide-react";
+import { createClient } from "@/lib/supabase/server";
 
-export function GalleryEnvironmentSection() {
+export async function GalleryEnvironmentSection() {
+  const mockEnvNews = [
+    { title: "শিগগির স্থগিত হতে পারে পাহাড়ের অবৈধ ফার্মেসিগুলোর ব্যবসা", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTn4xYjeNR3q2Qau3h5OWaSm-YPkJ04rycwkUG-g9dwGA&s=10" },
+    { title: "আবহাওয়ার খবর", image: "https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=400&auto=format&fit=crop" }
+  ];
+
+  const supabase = await createClient();
+  const { data: envCat } = await supabase.from("categories").select("id").eq("slug", "environment").single();
+  let envDbNews: any = null;
+  if (envCat) {
+    const { data } = await supabase.from("news").select("title, featured_image").eq("category_id", envCat.id).eq("status", "published").order("published_at", { ascending: false }).limit(2);
+    envDbNews = data;
+  }
+  
+  const environmentNews = envDbNews && envDbNews.length >= 2 ? envDbNews.map((n: any) => ({
+    title: n.title,
+    image: n.featured_image || mockEnvNews[0].image
+  })) : mockEnvNews;
+
   return (
     <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 mt-6">
       
@@ -47,7 +66,7 @@ export function GalleryEnvironmentSection() {
             
             <Link href="#" className="group block relative w-full aspect-[4/3] overflow-hidden rounded-sm border border-gray-200 bg-gray-100">
               <Image 
-                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTn4xYjeNR3q2Qau3h5OWaSm-YPkJ04rycwkUG-g9dwGA&s=10" 
+                src={environmentNews[0]?.image} 
                 alt="Environment News 1" 
                 fill 
                 className="object-cover transition-transform duration-500 group-hover:scale-105" 
@@ -55,14 +74,14 @@ export function GalleryEnvironmentSection() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
               <div className="absolute bottom-0 left-0 w-full p-3">
                 <h3 className="text-white font-medium text-[15px] leading-snug group-hover:text-gray-200 transition-colors">
-                  শিগগির স্থগিত হতে পারে পাহাড়ের অবৈধ ফার্মেসিগুলোর ব্যবসা
+                  {environmentNews[0]?.title}
                 </h3>
               </div>
             </Link>
 
             <Link href="#" className="group block relative w-full aspect-[4/3] overflow-hidden rounded-sm border border-gray-200 bg-gray-100">
               <Image 
-                src="https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=400&auto=format&fit=crop" 
+                src={environmentNews[1]?.image} 
                 alt="Environment News 2" 
                 fill 
                 className="object-cover transition-transform duration-500 group-hover:scale-105" 
@@ -73,7 +92,7 @@ export function GalleryEnvironmentSection() {
                   <Globe className="w-5 h-5 text-white" />
                 </div>
                 <h3 className="text-white font-medium text-[15px] leading-snug group-hover:text-gray-200 transition-colors">
-                  আবহাওয়ার খবর
+                  {environmentNews[1]?.title}
                 </h3>
               </div>
             </Link>

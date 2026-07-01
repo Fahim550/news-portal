@@ -1,9 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Circle, Globe } from "lucide-react";
+import { createClient } from "@/lib/supabase/server";
 
-export function SportsCorporateNews() {
-  const sportsNews = {
+export async function SportsCorporateNews() {
+  const mockSportsNews = {
     featured: {
       title: "মেসির বিশ্বরেকর্ডে জয় দিয়ে গ্রুপপর্ব শেষ করলো আর্জেন্টিনা",
       description: "থামছেই না লিওনেল মেসির জাদু। ২০২৬ বিশ্বকাপে এবার নিজের নামের পাশে যোগ করলেন আরেকটি অনন্য রেকর্ড। জর্ডনের বিপক্ষে...",
@@ -15,7 +16,7 @@ export function SportsCorporateNews() {
     ]
   };
 
-  const corporateNews = [
+  const mockCorporateNews = [
     { title: "বাজেটের মধ্যেই এলজি প্রযুক্তির চমক, বাজারে এলো লেনোভো আইডিয়াপ্যাড স্লিম ৫ সিরিজ", image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=200&auto=format&fit=crop" },
     { title: "ফ্রান্স-বাংলাদেশ চেম্বারের নতুন কমিটি গঠন", image: "https://images.unsplash.com/photo-1556761175-5973dc0f32b7?q=80&w=200&auto=format&fit=crop" },
     { title: "পাগলা মসজিদে রেকর্ড ১৫ কোটি ৯০ লাখ টাকা দান", image: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=200&auto=format&fit=crop" },
@@ -26,12 +27,53 @@ export function SportsCorporateNews() {
     { title: "প্রাইম ব্যাংকের সঙ্গে বায়ো বিশ্ব ডেভেলপমেন্টের চুক্তি", image: "https://images.unsplash.com/photo-1556761175-4b46a572b786?q=80&w=200&auto=format&fit=crop" }
   ];
 
-  const sidebarGrid = [
+  const mockSidebarGrid = [
     { title: "প্রধানমন্ত্রীর কার্যালয়ে খাবারের বাজেট ৫ গুণ কমলো", image: "https://images.unsplash.com/photo-1541336032412-2048a678540d?q=80&w=200&auto=format&fit=crop" },
     { title: "চাঁদ থেকে পৃথিবীর দিকে ফিরে আসছে ৪ নভোচারী", image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=200&auto=format&fit=crop" },
     { title: "পারফিউম ক্রয়ে বিশেষ ছাড় পাবেন প্রাইম ব্যাংকের গ্রাহকরা", image: "https://images.unsplash.com/photo-1590736704728-f4730bb30770?q=80&w=200&auto=format&fit=crop" },
     { title: "বনশ্রীতে 'সুলতান ডাইন অ্যান্ড কাবাব রেস্টুরেন্ট'র জমকালো উদ্বোধন", image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=200&auto=format&fit=crop" }
   ];
+
+  const supabase = await createClient();
+
+  // 1. Fetch Sports
+  const { data: sportsCat } = await supabase.from("categories").select("id").eq("slug", "sports").single();
+  let sportsDbNews: any = null;
+  if (sportsCat) {
+    const { data } = await supabase.from("news").select("id, title, summary, featured_image, is_featured").eq("category_id", sportsCat.id).eq("status", "published").order("published_at", { ascending: false }).limit(3);
+    sportsDbNews = data;
+  }
+  
+  const sportsNews = sportsDbNews && sportsDbNews.length > 0 ? {
+    featured: {
+      title: sportsDbNews[0].title,
+      description: sportsDbNews[0].summary || "",
+      image: sportsDbNews[0].featured_image || mockSportsNews.featured.image
+    },
+    list: sportsDbNews.slice(1).map((n: any) => ({
+      title: n.title,
+      image: n.featured_image || mockSportsNews.list[0].image
+    }))
+  } : mockSportsNews;
+
+  // 2. Fetch Corporate
+  const { data: corpCat } = await supabase.from("categories").select("id").eq("slug", "corporate").single();
+  let corpDbNews: any = null;
+  if (corpCat) {
+    const { data } = await supabase.from("news").select("id, title, featured_image").eq("category_id", corpCat.id).eq("status", "published").order("published_at", { ascending: false }).limit(8);
+    corpDbNews = data;
+  }
+  const corporateNews = corpDbNews && corpDbNews.length > 0 ? corpDbNews.map((n: any) => ({
+    title: n.title,
+    image: n.featured_image || mockCorporateNews[0].image
+  })) : mockCorporateNews;
+
+  // 3. Fetch Sidebar (Miscellaneous/latest)
+  const { data: sideDbNews } = await supabase.from("news").select("id, title, featured_image").eq("status", "published").order("created_at", { ascending: false }).limit(4);
+  const sidebarGrid = sideDbNews && sideDbNews.length > 0 ? sideDbNews.map((n: any) => ({
+    title: n.title,
+    image: n.featured_image || mockSidebarGrid[0].image
+  })) : mockSidebarGrid;
 
   return (
     <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 mt-6">

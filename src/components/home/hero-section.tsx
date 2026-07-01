@@ -2,9 +2,10 @@ import { LineChart, Newspaper } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import executiveImage from "../../../public/images/executive.png"
+import { createClient } from "@/lib/supabase/server"
 
-export function HeroSection() {
-  const latestNews = [
+export async function HeroSection() {
+  const mockLatestNews = [
     "হরমুজ প্রণালি ইরানের নিয়ন্ত্রণে থাকবে: আরাঘচি",
     "সিলেটে নতুন ডিসি নিয়োগ",
     "ব্যাংক খাত সংস্কারে বাংলাদেশকে ৪৫ কোটি ডলার ঋণ দিচ্ছে বিশ্বব্যাংক",
@@ -17,7 +18,7 @@ export function HeroSection() {
     "করাচিতে সেনা ক্যাম্পে সন্ত্রাসী হামলা, নিহত ৩ সেনাসহ ৬",
   ]
 
-  const stockNews = [
+  const mockStockNews = [
     {
       title: "সূচকের উত্থানে লেনদেন ১৩৭১ কোটি টাকা",
       image:
@@ -56,7 +57,7 @@ export function HeroSection() {
     },
   ]
 
-  const gridNews = [
+  const mockGridNews = [
     {
       title: "সুদভিত্তিক অর্থনীতির কবর রচনা করে জাকাতভিত্তিক অর্থনীতি...",
       image:
@@ -78,6 +79,73 @@ export function HeroSection() {
         "https://images.unsplash.com/photo-1577962917302-cd874c4e31d2?q=80&w=400&auto=format&fit=crop",
     },
   ]
+
+  const supabase = await createClient()
+
+  // 1. Fetch Latest News
+  const { data: latestDbNews } = await supabase
+    .from("news")
+    .select("title")
+    .eq("status", "published")
+    .order("published_at", { ascending: false })
+    .limit(10)
+
+  const latestNews = latestDbNews && latestDbNews.length > 0 
+    ? latestDbNews.map(n => n.title) 
+    : mockLatestNews
+
+  // 2. Fetch Featured / Grid News
+  const { data: featuredDbNews } = await supabase
+    .from("news")
+    .select("title, summary, featured_image, is_featured")
+    .eq("status", "published")
+    .order("published_at", { ascending: false })
+    .limit(10)
+
+  const mainFeatured = featuredDbNews?.find(n => n.is_featured) || featuredDbNews?.[0]
+  
+  const featuredArticle = mainFeatured ? {
+    title: mainFeatured.title,
+    excerpt: mainFeatured.summary || "",
+    image: mainFeatured.featured_image || "https://images.unsplash.com/photo-1541336032412-2048a678540d?q=80&w=1200&auto=format&fit=crop"
+  } : {
+    title: "ব্যাংক খাত সংস্কারে বাংলাদেশকে ৪৫ কোটি ডলার ঋণ দিচ্ছে বিশ্বব্যাংক",
+    excerpt: "দেশের ব্যাংকিং খাতের ভিত মজবুত করা, অর্থনৈতিক প্রবৃদ্ধি পুনরুদ্ধার এবং কর্মসংস্থান সৃষ্টির লক্ষ্যে ৪৫ কোটি মার্কিন...",
+    image: "https://images.unsplash.com/photo-1541336032412-2048a678540d?q=80&w=1200&auto=format&fit=crop"
+  }
+
+  const gridNews = featuredDbNews && featuredDbNews.length > 1
+    ? featuredDbNews.filter(n => n.title !== mainFeatured?.title).slice(0, 4).map(n => ({
+        title: n.title,
+        image: n.featured_image || "https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?q=80&w=400&auto=format&fit=crop"
+      }))
+    : mockGridNews
+
+  // 3. Fetch Stock News
+  const { data: stockCategory } = await supabase
+    .from("categories")
+    .select("id")
+    .eq("slug", "stock")
+    .single()
+
+  let stockDbNews: any = null
+  if (stockCategory) {
+    const { data } = await supabase
+      .from("news")
+      .select("title, featured_image")
+      .eq("category_id", stockCategory.id)
+      .eq("status", "published")
+      .order("published_at", { ascending: false })
+      .limit(7)
+    stockDbNews = data
+  }
+
+  const stockNews = stockDbNews && stockDbNews.length > 0
+    ? stockDbNews.map((n: any) => ({
+        title: n.title,
+        image: n.featured_image || "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?q=80&w=400&auto=format&fit=crop"
+      }))
+    : mockStockNews
 
   return (
     <>
@@ -103,18 +171,17 @@ export function HeroSection() {
           <Link href="#" className="group block border-b border-gray-200 pb-6">
             <div className="relative mb-4 aspect-[16/10] w-full overflow-hidden rounded-sm border border-gray-100 bg-gray-100">
               <Image
-                src="https://images.unsplash.com/photo-1541336032412-2048a678540d?q=80&w=1200&auto=format&fit=crop"
-                alt="World Bank"
+                src={featuredArticle.image}
+                alt={featuredArticle.title}
                 fill
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
               />
             </div>
             <h1 className="mb-3 text-2xl leading-tight font-bold text-[#042a59] transition-colors group-hover:text-[#0b753a] md:text-[28px]">
-              ব্যাংক খাত সংস্কারে বাংলাদেশকে ৪৫ কোটি ডলার ঋণ দিচ্ছে বিশ্বব্যাংক
+              {featuredArticle.title}
             </h1>
             <p className="text-[15px] leading-relaxed text-gray-600">
-              দেশের ব্যাংকিং খাতের ভিত মজবুত করা, অর্থনৈতিক প্রবৃদ্ধি পুনরুদ্ধার
-              এবং কর্মসংস্থান সৃষ্টির লক্ষ্যে ৪৫ কোটি মার্কিন...
+              {featuredArticle.excerpt}
             </p>
           </Link>
 

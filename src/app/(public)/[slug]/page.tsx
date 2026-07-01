@@ -2,24 +2,26 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChevronRight, Home } from "lucide-react";
 
+import { createClient } from "@/lib/supabase/server";
+
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   
-  // Mock Data
-  const featuredArticle = {
+  // Mock Data (Fallback)
+  const mockFeaturedArticle = {
     title: "৪৭তম বিসিএসের চূড়ান্ত ফল প্রকাশ",
     excerpt: "৪৭তম বিসিএস পরীক্ষার চূড়ান্ত ফল প্রকাশ করেছে সরকারি কর্ম কমিশন-পিএসসি। চাকরিতে নিয়োগের জন্য মনোনয়ন পেয়েছেন মোট ১...",
     image: "https://images.unsplash.com/photo-1541336032412-2048a678540d?q=80&w=800&auto=format&fit=crop"
   };
 
-  const sideArticles = [
+  const mockSideArticles = [
     { title: "ঘামের উপসর্গে আরও চার শিশুর মৃত্যু", image: "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=400&auto=format&fit=crop" },
     { title: "বাজেটে মানবসম্পদ উন্নয়ন ও অবকাঠামো খাতকে সর্বোচ্চ গুরুত্ব", image: "https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?q=80&w=400&auto=format&fit=crop" },
     { title: "ব্যাংক খাত সংস্কারে বাংলাদেশকে ৪৫ কোটি ডলার ঋণ দিচ্ছে", image: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?q=80&w=400&auto=format&fit=crop" },
     { title: "সুদভিত্তিক অর্থনীতির কবর রচনা করে জাকাতভিত্তিক অর্থনীতি...", image: "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?q=80&w=400&auto=format&fit=crop" }
   ];
 
-  const subCategoryArticles = [
+  const mockSubCategoryArticles = [
     { title: "রাজধানীতে কার্যক্রম নিষিদ্ধ আ.লীগের ২৬ নেতাকর্মী গ্রেফতার", image: "https://images.unsplash.com/photo-1560415755-bd80d06eda60?q=80&w=400&auto=format&fit=crop" },
     { title: "সারাদেশে বিক্ষোভের ডাক এনসিপির", image: "https://images.unsplash.com/photo-1621981386829-9b458a2cddde?q=80&w=400&auto=format&fit=crop" },
     { title: "মামুনুল হককে নিয়ে সংসদে দেওয়া বক্তব্য এক্সপাঞ্জ করলেন স্পিকার", image: "https://images.unsplash.com/photo-1577962917302-cd874c4e31d2?q=80&w=400&auto=format&fit=crop" },
@@ -28,18 +30,67 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
     { title: "বাজেটকে ঋণনির্ভর, উচ্চাভিলাষী ও অবাস্তবায়নযোগ্য বলল জামায়াত", image: "https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?q=80&w=400&auto=format&fit=crop" }
   ];
 
-  const recentNews = [
+  const mockRecentNews = [
     { title: "রবি, ইআরএফ ও ব্রিটিশ কাউন্সিলের উদ্যোগে সাংবাদিকদের যোগাযোগ দক্ষতা উন্নয়ন", image: "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=400&auto=format&fit=crop" },
     { title: "টিউলিপের বিরুদ্ধে অভিযোগ গঠনের শুনানি সেপ্টেম্বরে", image: "https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?q=80&w=400&auto=format&fit=crop" },
     { title: "আয়াতুল্লাহ আলী খামেনির শেষ যাত্রায় যোগ দিতে পারেন ২ কোটির বেশি মানুষ", image: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?q=80&w=400&auto=format&fit=crop" },
     { title: "ওষুধের চাহিদা মেটাতে সিটাসি ফার্মার সঙ্গে স্কয়ারের চুক্তি", image: "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?q=80&w=400&auto=format&fit=crop" }
   ];
 
-  // Capitalize title based on slug for now
-  const categoryTitle = slug === "national" ? "জাতীয়" : 
-                        slug === "investment" ? "বিনিয়োগ" :
-                        slug === "sports" ? "খেলাধুলা" : 
-                        slug === "international" ? "আন্তর্জাতিক" : "ক্যাটাগরি";
+  // Fetch Database Data
+  const supabase = await createClient();
+  
+  // 1. Get Category Details
+  const { data: category } = await supabase
+    .from("categories")
+    .select("id, name")
+    .eq("slug", slug)
+    .single();
+    
+  let categoryTitle = category?.name || (
+    slug === "national" ? "জাতীয়" : 
+    slug === "investment" ? "বিনিয়োগ" :
+    slug === "sports" ? "খেলাধুলা" : 
+    slug === "international" ? "আন্তর্জাতিক" : "ক্যাটাগরি"
+  );
+
+  // 2. Get News for this Category
+  const { data: dbNews } = await supabase
+    .from("news")
+    .select("id, title, summary, featured_image, is_featured")
+    .eq("category_id", category?.id || "")
+    .eq("status", "published")
+    .order("published_at", { ascending: false });
+
+  const hasDbNews = dbNews && dbNews.length > 0;
+
+  // 3. Map Database Data or Fallback
+  const featuredDbNews = dbNews?.find(n => n.is_featured) || dbNews?.[0];
+  
+  const featuredArticle = hasDbNews && featuredDbNews ? {
+    title: featuredDbNews.title,
+    excerpt: featuredDbNews.summary || "",
+    image: featuredDbNews.featured_image || "https://images.unsplash.com/photo-1541336032412-2048a678540d?q=80&w=800&auto=format&fit=crop"
+  } : mockFeaturedArticle;
+
+  const sideArticles = hasDbNews ? 
+    dbNews.filter(n => n.id !== featuredDbNews?.id).slice(0, 4).map(n => ({
+      title: n.title,
+      image: n.featured_image || "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=400&auto=format&fit=crop"
+    })) : mockSideArticles;
+
+  const subCategoryArticles = hasDbNews ? 
+    dbNews.filter(n => n.id !== featuredDbNews?.id).slice(4, 10).map(n => ({
+      title: n.title,
+      image: n.featured_image || "https://images.unsplash.com/photo-1560415755-bd80d06eda60?q=80&w=400&auto=format&fit=crop"
+    })) : mockSubCategoryArticles;
+
+  // For recent news, we could just take the latest 4 across the site or for the category. We'll use category latest.
+  const recentNews = hasDbNews ? 
+    dbNews.slice(0, 4).map(n => ({
+      title: n.title,
+      image: n.featured_image || "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=400&auto=format&fit=crop"
+    })) : mockRecentNews;
 
   return (
     <main className="min-h-screen bg-white">

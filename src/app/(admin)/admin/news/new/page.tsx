@@ -8,7 +8,7 @@ export default async function NewNewsPage() {
     .from("categories")
     .select("*")
     .order("name")
-    
+
   const { data: authors } = await supabase
     .from("authors")
     .select("*")
@@ -17,16 +17,15 @@ export default async function NewNewsPage() {
   return (
     <div className="flex flex-col gap-6 p-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Create News Article</h1>
-        <p className="text-muted-foreground text-sm mt-1">
+        <h1 className="text-2xl font-bold tracking-tight">
+          Create News Article
+        </h1>
+        <p className="text-muted-foreground mt-1 text-sm">
           Draft a new article, set categories, and configure SEO.
         </p>
       </div>
-      <div className="max-w-4xl border border-border rounded-lg bg-card p-6 shadow-sm">
-        <NewsForm 
-          categories={categories || []} 
-          authors={authors || []} 
-        />
+      <div className="border-border bg-card max-w-4xl rounded-lg border p-6 shadow-sm">
+        <NewsForm categories={categories || []} authors={authors || []} />
       </div>
     </div>
   )

@@ -3,7 +3,7 @@ import { DataTable } from "@/components/ui/data-table"
 import { createClient } from "@/lib/supabase/server"
 import { columns } from "./columns"
 import { UserForm } from "@/components/admin/user-form"
-
+import Link from "next/link"
 export const revalidate = 0
 
 export default async function UsersPage() {
@@ -38,7 +38,12 @@ export default async function UsersPage() {
             Manage system users, editors, and platform access.
           </p>
         </div>
-        <UserForm />
+        <div className="flex gap-3">
+          <Link href="/admin/users/new">
+            <Button variant="outline">Add Author Profile</Button>
+          </Link>
+          <UserForm />
+        </div>
       </div>
       <div className="bg-card rounded-lg border border-border shadow-sm p-1">
         <DataTable columns={columns as any} data={users || []} />

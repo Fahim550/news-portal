@@ -12,28 +12,46 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { SidebarTrigger } from "@/components/ui/sidebar"
-import { Bell, LogOut } from "lucide-react"
-import Link from "next/link"
-import { DynamicBreadcrumb } from "./dynamic-breadcrumb"
 import { createClient } from "@/lib/supabase/client"
+import { LogOut, User } from "lucide-react"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
+import { DynamicBreadcrumb } from "./dynamic-breadcrumb"
 
 export function AdminHeader() {
   const router = useRouter()
   const supabase = createClient()
   const [userEmail, setUserEmail] = useState<string | null>(null)
+  const [userAvatar, setUserAvatar] = useState<string | null>(null)
+  const [userName, setUserName] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
       if (user) {
         setUserEmail(user.email ?? "admin")
+
+        // Fetch profile to get real name and avatar
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("first_name, last_name, avatar_url")
+          .eq("id", user.id)
+          .single()
+
+        if (profile) {
+          const fullName =
+            `${profile.first_name || ""} ${profile.last_name || ""}`.trim()
+          setUserName(fullName || null)
+          setUserAvatar(profile.avatar_url)
+        }
       }
     }
     fetchUser()
-  }, [supabase.auth])
+  }, [supabase])
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut()
@@ -57,12 +75,6 @@ export function AdminHeader() {
       <div className="ml-auto flex items-center gap-2">
         <ThemeSwitcher />
 
-        {/* Notifications */}
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell className="text-muted-foreground h-5 w-5" />
-          <span className="bg-destructive absolute top-2 right-2 h-2 w-2 rounded-full" />
-        </Button>
-
         {/* Profile Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger
@@ -72,11 +84,22 @@ export function AdminHeader() {
                 className="relative ml-2 h-8 w-8 rounded-full"
               >
                 <Avatar className="h-8 w-8">
-                  <AvatarImage
-                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop"
-                    alt="Admin"
-                  />
-                  <AvatarFallback>{userEmail ? userEmail.substring(0,2).toUpperCase() : "AD"}</AvatarFallback>
+                  {userAvatar && (
+                    <AvatarImage
+                      src={userAvatar}
+                      alt={userName || "Admin"}
+                      className="object-cover"
+                    />
+                  )}
+                  <AvatarFallback className="bg-primary/10 text-primary">
+                    {userName ? (
+                      userName.substring(0, 2).toUpperCase()
+                    ) : userEmail ? (
+                      userEmail.substring(0, 2).toUpperCase()
+                    ) : (
+                      <User className="h-4 w-4" />
+                    )}
+                  </AvatarFallback>
                 </Avatar>
               </Button>
             }
@@ -84,7 +107,9 @@ export function AdminHeader() {
           <DropdownMenuContent className="w-56" align="end">
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
-                <p className="text-sm leading-none font-medium">Admin User</p>
+                <p className="text-sm leading-none font-medium">
+                  {userName || "Admin User"}
+                </p>
                 <p className="text-muted-foreground text-xs leading-none">
                   {userEmail || "Loading..."}
                 </p>
@@ -98,9 +123,9 @@ export function AdminHeader() {
               View Public Site
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem 
+            <DropdownMenuItem
               onClick={handleLogout}
-              className="text-destructive focus:text-destructive focus:bg-destructive/10 font-medium cursor-pointer"
+              className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer font-medium"
             >
               <LogOut className="mr-2 h-4 w-4" />
               Log out

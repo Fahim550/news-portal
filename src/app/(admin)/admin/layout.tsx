@@ -30,14 +30,7 @@ export default async function AdminLayout({
 
   // Basic protection: Only allow non-Readers to access dashboard
   // Alternatively, you can have a specific whitelist:
-  const allowedRoles = [
-    "Super Admin",
-    "Admin",
-    "Editor",
-    "Author",
-    "Moderator",
-    "Reporter",
-  ]
+  const allowedRoles = ["Super Admin", "Admin", "Author", "Reporter", "Reader"]
   if (!roleName || !allowedRoles.includes(roleName)) {
     // If they don't have permission, send them to homepage or an unauthorized page
     redirect("/")

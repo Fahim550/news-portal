@@ -3,6 +3,7 @@
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -10,13 +11,14 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarFooter,
 } from "@/components/ui/sidebar"
+import { createClient } from "@/lib/supabase/client"
 import {
   BarChart,
   FolderTree,
   Image as ImageIcon,
   LayoutDashboard,
+  LogOut,
   Megaphone,
   MenuSquare,
   MessageSquare,
@@ -25,12 +27,10 @@ import {
   ShieldAlert,
   Tags,
   Users,
-  LogOut,
 } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
 import Logo from "../../../public/images/logo.png"
 
@@ -94,15 +94,18 @@ export function AdminSidebar() {
   return (
     <Sidebar variant="sidebar" collapsible="icon">
       <SidebarHeader className="border-border/50 flex h-16 items-center border-b px-0">
-        <div className="flex items-center overflow-hidden transition-all duration-200">
+        <div className="flex w-full items-center gap-3 overflow-hidden transition-all duration-200">
           <Image
             src={Logo}
             alt="Logo"
             width={200}
             height={80}
-            className="h-12 w-auto md:h-[60px]"
+            className="h-12 w-auto shrink-0 md:h-[60px]"
             priority
           />
+          <h1 className="truncate text-lg font-bold group-data-[collapsible=icon]:hidden md:text-xl">
+            Admin Panel
+          </h1>
         </div>
       </SidebarHeader>
       <SidebarContent>
@@ -134,7 +137,11 @@ export function AdminSidebar() {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton onClick={handleLogout} tooltip="Logout" className="text-destructive hover:text-destructive hover:bg-destructive/10">
+            <SidebarMenuButton
+              onClick={handleLogout}
+              tooltip="Logout"
+              className="text-destructive hover:text-destructive hover:bg-destructive/10"
+            >
               <LogOut className="text-destructive" />
               <span>Logout</span>
             </SidebarMenuButton>

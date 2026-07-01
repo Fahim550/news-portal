@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { createClient } from "@/lib/supabase/client"
+import { UserPlus } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
@@ -134,11 +135,10 @@ export function UserForm({
         className="inline-block cursor-pointer"
       >
         {children || (
-          // <Button type="button">
-          //   <UserPlus className="mr-2 h-4 w-4" />
-          //   Add User
-          // </Button>
-          <></>
+          <Button type="button">
+            <UserPlus className="mr-2 h-4 w-4" />
+            Add User
+          </Button>
         )}
       </div>
       <DialogContent className="sm:max-w-[425px]">

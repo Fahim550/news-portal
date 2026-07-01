@@ -3,10 +3,12 @@
 import { createClient } from "@/lib/supabase/client"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import * as z from "zod"
+import { Loader2, Upload } from "lucide-react"
+import { insertMediaRecord } from "@/app/actions/media"
 
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -62,6 +64,8 @@ interface AdFormProps {
 export function AdForm({ initialData }: AdFormProps) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
+  const [isUploadingImage, setIsUploadingImage] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const supabase = createClient()
 
   const defaultValues: Partial<AdFormValues> = initialData
@@ -88,6 +92,58 @@ export function AdForm({ initialData }: AdFormProps) {
     resolver: zodResolver(adFormSchema) as any,
     defaultValues,
   })
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (!file.type.startsWith("image/") && file.type !== "image/svg+xml") {
+      toast.error("Only image files are allowed.")
+      return
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("File size must be under 10MB.")
+      return
+    }
+
+    setIsUploadingImage(true)
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error("You must be logged in to upload.")
+
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`
+      const filePath = `uploads/${fileName}`
+
+      const { error: uploadError } = await supabase.storage
+        .from("media")
+        .upload(filePath, file)
+
+      if (uploadError) throw uploadError
+
+      try {
+        await insertMediaRecord({
+          file_name: file.name,
+          file_path: filePath,
+          file_type: file.type,
+          file_size: file.size,
+        })
+      } catch (dbError: any) {
+        await supabase.storage.from("media").remove([filePath])
+        throw dbError
+      }
+
+      const { data: { publicUrl } } = supabase.storage.from("media").getPublicUrl(filePath)
+      
+      form.setValue("image", publicUrl)
+      toast.success("Image uploaded successfully!")
+    } catch (error: any) {
+      toast.error(error.message || "Failed to upload image")
+    } finally {
+      setIsUploadingImage(false)
+      if (fileInputRef.current) fileInputRef.current.value = ""
+    }
+  }
 
   async function onSubmit(data: AdFormValues) {
     setIsLoading(true)
@@ -183,9 +239,44 @@ export function AdForm({ initialData }: AdFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Image URL</FormLabel>
-                  <FormControl>
-                    <Input placeholder="https://example.com/banner.jpg" {...field} value={field.value || ""} />
-                  </FormControl>
+                  <div className="flex gap-2">
+                    <FormControl>
+                      <Input placeholder="https://example.com/banner.jpg" {...field} value={field.value || ""} className="flex-1" />
+                    </FormControl>
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleImageUpload}
+                      className="hidden"
+                      accept="image/*"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isUploadingImage}
+                    >
+                      {isUploadingImage ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <Upload className="mr-2 h-4 w-4" />
+                      )}
+                      Upload
+                    </Button>
+                  </div>
+                  {field.value && (
+                    <div className="mt-4 relative aspect-video w-full overflow-hidden rounded-md border border-border">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={field.value}
+                        alt="Ad preview"
+                        className="object-cover w-full h-full"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="%23ccc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="3" x2="21" y2="21"></line></svg>'
+                        }}
+                      />
+                    </div>
+                  )}
                   <FormMessage />
                 </FormItem>
               )}

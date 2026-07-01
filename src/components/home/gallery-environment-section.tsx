@@ -1,88 +1,63 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Globe } from "lucide-react";
+import { Camera } from "lucide-react";
 
 export function GalleryEnvironmentSection() {
+  const photos = [
+    { title: "বন্যা পরিস্থিতি", image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=600&auto=format&fit=crop" },
+    { title: "শীতের সকাল", image: "https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=400&auto=format&fit=crop" },
+    { title: "গ্রাম বাংলার দৃশ্য", image: "https://images.unsplash.com/photo-1579532537598-459ecdaf39cc?q=80&w=400&auto=format&fit=crop" },
+    { title: "নৌকা বাইচ", image: "https://images.unsplash.com/photo-1541336032412-2048a678540d?q=80&w=400&auto=format&fit=crop" },
+  ]
+
   return (
-    <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 mt-6">
-      
-      {/* Left Area: Photo Gallery (Approx 75%) */}
-      <div className="lg:w-[75%] flex flex-col">
-        {/* Section Header */}
-        <div className="flex items-center gap-2 mb-4">
-          <div className="w-3 h-3 bg-[#c74c2c]" />
-          <h2 className="text-xl md:text-2xl font-bold text-[#042a59] whitespace-nowrap">ফটো গ্যালারি</h2>
-        </div>
-
-        {/* Big Gallery Image */}
-        <div className="relative w-full aspect-[16/9] md:aspect-[16/7] xl:aspect-[2/1] overflow-hidden border border-gray-200">
-           <Image 
-             src="https://assets.bucketlistly.blog/sites/5adf778b6eabcc00190b75b1/assets/6075182186d092000b192cee/best-free-travel-images-image-2.jpg" 
-             alt="Photo Gallery" 
-             fill 
-             className="object-cover" 
-           />
-        </div>
-
-        {/* Carousel Dots */}
-        <div className="flex justify-center items-center gap-2 mt-4">
-           <div className="w-2 h-2 rounded-full bg-gray-300"></div>
-           <div className="w-2 h-2 rounded-full bg-gray-300"></div>
-           <div className="w-2 h-2 rounded-full bg-gray-300"></div>
-           <div className="w-2 h-2 rounded-full bg-[#c74c2c]"></div>
-        </div>
+    <div className="w-full bg-[#1a1a1a] my-10 p-6 md:p-8 rounded-sm">
+      <div className="flex items-center gap-2 mb-6 border-b border-gray-700 pb-2">
+        <Camera className="w-6 h-6 text-white" />
+        <h2 className="text-2xl font-bold text-white">ফটো গ্যালারী</h2>
       </div>
 
-      {/* Right Area: Environment (Approx 25%) */}
-      <div className="lg:w-[25%] flex flex-col shrink-0">
-        
-        <div className="border border-gray-200 p-4 rounded-sm">
-          {/* Section Header */}
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-3 h-3 bg-[#c74c2c]" />
-            <h2 className="text-xl md:text-2xl font-bold text-[#042a59] whitespace-nowrap">পরিবেশ ও প্রতিবেশ</h2>
+      <div className="flex flex-col lg:flex-row gap-4">
+        {/* Main Photo */}
+        <Link href="#" className="lg:w-[65%] group relative block overflow-hidden rounded-sm aspect-[16/10] md:aspect-video">
+          <Image 
+            src={photos[0].image} 
+            alt={photos[0].title} 
+            fill 
+            className="object-cover transition-transform duration-700 group-hover:scale-105 opacity-90 group-hover:opacity-100" 
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+          <div className="absolute bottom-0 left-0 w-full p-6">
+             <div className="bg-[#b83b3b] text-white text-xs font-bold px-2 py-1 inline-block mb-3 rounded-sm">
+               Latest Photo
+             </div>
+             <h3 className="text-white text-xl md:text-3xl font-bold leading-tight group-hover:text-gray-300 transition-colors">
+               {photos[0].title}
+             </h3>
           </div>
+        </Link>
 
-          <div className="flex flex-col gap-4">
-            
-            <Link href="#" className="group block relative w-full aspect-[4/3] overflow-hidden rounded-sm border border-gray-200 bg-gray-100">
+        {/* Small Photos Grid */}
+        <div className="lg:w-[35%] grid grid-cols-2 lg:grid-cols-1 gap-4">
+          {photos.slice(1).map((photo, idx) => (
+            <Link href="#" key={idx} className="group relative block overflow-hidden rounded-sm aspect-[4/3] lg:aspect-[16/7]">
               <Image 
-                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTn4xYjeNR3q2Qau3h5OWaSm-YPkJ04rycwkUG-g9dwGA&s=10" 
-                alt="Environment News 1" 
+                src={photo.image} 
+                alt={photo.title} 
                 fill 
-                className="object-cover transition-transform duration-500 group-hover:scale-105" 
+                className="object-cover transition-transform duration-700 group-hover:scale-105 opacity-80 group-hover:opacity-100" 
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-              <div className="absolute bottom-0 left-0 w-full p-3">
-                <h3 className="text-white font-medium text-[15px] leading-snug group-hover:text-gray-200 transition-colors">
-                  শিগগির স্থগিত হতে পারে পাহাড়ের অবৈধ ফার্মেসিগুলোর ব্যবসা
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/10 to-transparent" />
+              <div className="absolute bottom-0 left-0 w-full p-4">
+                <Camera className="w-4 h-4 text-white/80 mb-2" />
+                <h3 className="text-white text-sm font-medium leading-snug group-hover:text-gray-300 transition-colors">
+                  {photo.title}
                 </h3>
               </div>
             </Link>
-
-            <Link href="#" className="group block relative w-full aspect-[4/3] overflow-hidden rounded-sm border border-gray-200 bg-gray-100">
-              <Image 
-                src="https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=400&auto=format&fit=crop" 
-                alt="Environment News 2" 
-                fill 
-                className="object-cover transition-transform duration-500 group-hover:scale-105" 
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-              <div className="absolute bottom-0 left-0 w-full p-3 flex flex-col items-center text-center">
-                <div className="w-10 h-10 rounded-full border-2 border-white flex items-center justify-center mb-2 bg-black/40">
-                  <Globe className="w-5 h-5 text-white" />
-                </div>
-                <h3 className="text-white font-medium text-[15px] leading-snug group-hover:text-gray-200 transition-colors">
-                  আবহাওয়ার খবর
-                </h3>
-              </div>
-            </Link>
-
-          </div>
+          ))}
         </div>
-
       </div>
-
     </div>
   );
 }

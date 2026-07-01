@@ -1,24 +1,25 @@
-"use client";
+"use client"
 
-import * as React from "react";
-import Link from "next/link";
-import { Menu, Home, ChevronRight } from "lucide-react";
+import { Separator } from "@/components/ui/separator"
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet";
-import { Logo } from "./logo";
-import { Separator } from "@/components/ui/separator";
+} from "@/components/ui/sheet"
+import { Home, Menu } from "lucide-react"
+import Image from "next/image"
+import Link from "next/link"
+import * as React from "react"
+import Logo from "../../../public/images/logo.png"
 
 interface SideMenuProps {
-  variant?: "desktop" | "mobileTop";
+  variant?: "desktop" | "mobileTop"
 }
 
 export function SideMenu({ variant = "desktop" }: SideMenuProps) {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = React.useState(false)
 
   const navLinks = [
     { name: "জাতীয়", href: "/national" },
@@ -31,17 +32,19 @@ export function SideMenu({ variant = "desktop" }: SideMenuProps) {
     { name: "খেলাধুলা", href: "#" },
     { name: "বিনোদন", href: "#" },
     { name: "তথ্যপ্রযুক্তি", href: "#" },
-  ];
+  ]
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger render={
-        variant === "desktop" ? (
-          <button className="flex items-center gap-1.5 h-full px-3 md:px-5 font-semibold hover:bg-white/10 transition-colors whitespace-nowrap text-white" />
-        ) : (
-          <button className="flex items-center justify-center p-2 text-gray-800 hover:text-gray-600 transition-colors" />
-        )
-      }>
+      <SheetTrigger
+        render={
+          variant === "desktop" ? (
+            <button className="flex h-full items-center gap-1.5 px-3 font-semibold whitespace-nowrap text-white transition-colors hover:bg-white/10 md:px-5" />
+          ) : (
+            <button className="flex items-center justify-center p-2 text-gray-800 transition-colors hover:text-gray-600" />
+          )
+        }
+      >
         {variant === "desktop" ? (
           <>
             <Menu className="h-[18px] w-[18px]" />
@@ -51,21 +54,34 @@ export function SideMenu({ variant = "desktop" }: SideMenuProps) {
           <Menu className="h-8 w-8" strokeWidth={1.5} />
         )}
       </SheetTrigger>
-      
+
       {/* Drawer opens from left */}
-      <SheetContent side="left" className="w-[300px] sm:w-[350px] p-0 bg-white">
-        <SheetHeader className="p-4 border-b border-gray-100 flex items-center justify-center">
-          <SheetTitle className="text-left w-full flex justify-center">
-            <Logo className="w-[200px] h-[60px]" />
+      <SheetContent side="left" className="w-[300px] bg-white p-0 sm:w-[350px]">
+        <SheetHeader className="flex items-center justify-center border-b border-gray-100 p-4">
+          <SheetTitle className="flex w-full justify-center">
+            <Link
+              href="/"
+              onClick={() => setOpen(false)}
+              className="inline-flex transition-transform hover:scale-[1.02]"
+            >
+              <Image
+                src={Logo}
+                alt="News Portal"
+                width={200}
+                height={55}
+                className="h-16 w-auto object-contain sm:w-[180px]"
+                priority
+              />
+            </Link>
           </SheetTitle>
         </SheetHeader>
-        
-        <div className="flex flex-col h-full overflow-y-auto">
+
+        <div className="flex h-full flex-col overflow-y-auto">
           {/* Default links */}
-          <Link 
-            href="/" 
+          <Link
+            href="/"
             onClick={() => setOpen(false)}
-            className="flex items-center gap-3 px-6 py-4 text-[#042a59] font-bold border-b border-gray-100 hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-3 border-b border-gray-100 px-6 py-4 font-bold text-[#042a59] transition-colors hover:bg-gray-50"
           >
             <Home className="h-5 w-5" />
             <span>প্রচ্ছদ</span>
@@ -74,27 +90,48 @@ export function SideMenu({ variant = "desktop" }: SideMenuProps) {
           {/* Categories */}
           <nav className="flex flex-col">
             {navLinks.map((category) => (
-              <div key={category.name} className="flex flex-col border-b border-gray-100">
+              <div
+                key={category.name}
+                className="flex flex-col border-b border-gray-100"
+              >
                 <Link
                   href={category.href}
                   onClick={() => setOpen(false)}
-                  className="flex items-center justify-between px-6 py-3.5 font-semibold text-gray-800 hover:text-[#0b753a] hover:bg-gray-50 transition-colors"
+                  className="flex items-center justify-between px-6 py-3.5 font-semibold text-gray-800 transition-colors hover:bg-gray-50 hover:text-[#0b753a]"
                 >
                   {category.name}
                 </Link>
               </div>
             ))}
           </nav>
-          
+
           <Separator className="my-2 opacity-50" />
-          
-          <nav className="flex flex-col px-6 py-4 gap-4 mb-20">
-            <Link href="/about" onClick={() => setOpen(false)} className="text-sm font-medium text-gray-500 hover:text-[#0b753a]">আমাদের সম্পর্কে</Link>
-            <Link href="/contact" onClick={() => setOpen(false)} className="text-sm font-medium text-gray-500 hover:text-[#0b753a]">যোগাযোগ</Link>
-            <Link href="/privacy" onClick={() => setOpen(false)} className="text-sm font-medium text-gray-500 hover:text-[#0b753a]">গোপনীয়তা নীতি</Link>
+
+          <nav className="mb-20 flex flex-col gap-4 px-6 py-4">
+            <Link
+              href="/about"
+              onClick={() => setOpen(false)}
+              className="text-sm font-medium text-gray-500 hover:text-[#0b753a]"
+            >
+              আমাদের সম্পর্কে
+            </Link>
+            <Link
+              href="/contact"
+              onClick={() => setOpen(false)}
+              className="text-sm font-medium text-gray-500 hover:text-[#0b753a]"
+            >
+              যোগাযোগ
+            </Link>
+            <Link
+              href="/privacy"
+              onClick={() => setOpen(false)}
+              className="text-sm font-medium text-gray-500 hover:text-[#0b753a]"
+            >
+              গোপনীয়তা নীতি
+            </Link>
           </nav>
         </div>
       </SheetContent>
     </Sheet>
-  );
+  )
 }

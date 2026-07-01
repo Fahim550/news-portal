@@ -118,13 +118,13 @@ export async function Header() {
           <div className="flex h-[60px] items-center justify-between text-[14px] md:h-[48px] md:text-[15px]">
             {/* Mobile Left: Logo */}
             <div className="flex h-full items-center py-2 pl-3 md:hidden">
-              <div className="flex h-full items-center justify-center rounded-md bg-white px-3 py-1 shadow-sm">
+              <div className="flex h-full items-center justify-center rounded-md bg-white px-0 py-1 shadow-sm">
                 <Image
                   src={Logo}
                   alt="Logo"
                   width={140}
                   height={36}
-                  className="h-7 w-auto object-contain"
+                  className="h-12 w-auto rounded-sm object-contain"
                   priority
                 />
               </div>

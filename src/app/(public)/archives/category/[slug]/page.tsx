@@ -2,15 +2,71 @@ import { ChevronRight } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 
-export default function CategoryArchivePage({
+export default async function CategoryArchivePage({
   params,
 }: {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }) {
+  const { slug } = await params
   // Decode the slug to get a readable category name
-  const rawCategoryName = decodeURIComponent(params.slug)
-  // Capitalize the first letter if it's english, or just use as is for Bengali
-  const categoryName = "অর্থনীতি" // Mocking as 'অর্থনীতি' for this specific UI
+  const rawCategoryName = decodeURIComponent(slug)
+
+  // Mapping mock data based on route
+  const categoryMap: Record<string, { title: string; desc: string }> = {
+    national: {
+      title: "জাতীয়",
+      desc: "দেশের সর্বশেষ সংবাদ ও গুরুত্বপূর্ণ ঘটনাবলী।",
+    },
+    economics: {
+      title: "অর্থনীতি",
+      desc: "অর্থনীতির সর্বশেষ খবর জানুন। দেশী ও বিদেশী অর্থনীতির খবর এক সাথে।",
+    },
+    business: {
+      title: "ব্যবসা",
+      desc: "ব্যবসা ও বাণিজ্যের খবরাখবর এবং বাজার দর।",
+    },
+    investment: {
+      title: "বিনিয়োগ",
+      desc: "পুঁজিবাজার ও বিনিয়োগের দৈনন্দিন খবর।",
+    },
+    international: {
+      title: "আন্তর্জাতিক",
+      desc: "বিশ্বের গুরুত্বপূর্ণ সব খবর এবং আন্তর্জাতিক রাজনীতি।",
+    },
+    politics: {
+      title: "রাজনীতি",
+      desc: "দেশের রাজনৈতিক অঙ্গনের সর্বশেষ খবর ও আলোচনা।",
+    },
+    crime: {
+      title: "অপরাধ ও দুর্নীতি",
+      desc: "অপরাধ, দুর্নীতি ও আইনশৃঙ্খলা রক্ষাকারী বাহিনীর খবর।",
+    },
+    sports: { title: "খেলাধুলা", desc: "খেলার মাঠের সকল খবর ও আপডেট।" },
+    entertainment: {
+      title: "বিনোদন",
+      desc: "বিনোদন জগতের খবরাখবর ও তারকাদের কথা।",
+    },
+    technology: {
+      title: "তথ্যপ্রযুক্তি",
+      desc: "প্রযুক্তি বিশ্বের নতুন আপডেট ও বিজ্ঞান।",
+    },
+  }
+
+  const currentCategory = categoryMap[slug] || {
+    title: rawCategoryName,
+    desc: `${rawCategoryName} সম্পর্কিত সবশেষ খবর ও আপডেট।`,
+  }
+
+  const categoryName = currentCategory.title
+  const categoryDescription = currentCategory.desc
+
+  const validImages = [
+    "https://images.unsplash.com/photo-1541336032412-2048a678540d?q=80&w=400&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1577962917302-cd874c4e31d2?q=80&w=400&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=400&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=400&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=400&auto=format&fit=crop",
+  ]
 
   // Mock Data for News Grid
   const gridNews = Array(15)
@@ -21,7 +77,7 @@ export default function CategoryArchivePage({
         i % 2 === 0
           ? "ব্যাংক খাত সংস্কারে বাংলাদেশকে ৪৫ কোটি ডলার ঋণ দিচ্ছে..."
           : "অসদাচরণ ও প্রতারণায় জড়িত থাকার অভিযোগে ব্যবস্থা...",
-      image: `https://images.unsplash.com/photo-${1550000000000 + i * 10000}?q=80&w=400&auto=format&fit=crop`,
+      image: validImages[i % validImages.length],
     }))
 
   // Mock Data for Recent News (সাম্প্রতিক)
@@ -70,7 +126,7 @@ export default function CategoryArchivePage({
               {categoryName}
             </h1>
             <p className="text-sm font-medium text-gray-600">
-              অর্থনীতির সর্বশেষ খবর জানুন। দেশী ও বিদেশী অর্থনীতির খবর এক সাথে।
+              {categoryDescription}
             </p>
           </div>
 

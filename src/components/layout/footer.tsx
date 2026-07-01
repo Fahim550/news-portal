@@ -1,6 +1,7 @@
 import { Separator } from "@/components/ui/separator"
 import { CATEGORIES } from "@/lib/constants"
 import { Mail, MapPin, Phone } from "lucide-react"
+import Image from "next/image"
 import Link from "next/link"
 import {
   FaFacebook,
@@ -9,7 +10,7 @@ import {
   FaTwitter,
   FaYoutube,
 } from "react-icons/fa"
-import { Logo } from "./logo"
+import Logo from "../../../public/images/logo.png"
 
 export function Footer() {
   const currentYear = new Date().getFullYear()
@@ -20,7 +21,19 @@ export function Footer() {
         <div className="mb-12 grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-4">
           {/* Brand Info */}
           <div className="flex flex-col gap-4">
-            <Logo />
+            <Link
+              href="/"
+              className="inline-flex items-center self-start rounded-md bg-white px-3 py-1.5 shadow-sm transition-transform hover:scale-[1.02]"
+            >
+              <Image
+                src={Logo}
+                alt="News Portal"
+                width={260}
+                height={45}
+                className="h-10 w-auto object-contain md:h-12 lg:h-14"
+                priority
+              />
+            </Link>
             <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
               Your most trusted source for breaking news, in-depth analysis, and
               exclusive reports from around the globe. Stay informed, stay
